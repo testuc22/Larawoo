@@ -43,7 +43,17 @@
                       <select class="form-control" name="parent_category">
                         <option value="0" selected>Select Parent Category</option>
                         @foreach($categories as $category)
-                          <option value="{{$category->id}}">{{$category->title}}</option>
+                        @php
+                        $html='';
+                        @endphp
+                        @if(isset($category['childs']))
+                        @php
+                        foreach (array_reverse($category['childs']) as $child) {
+                            $html.=$child['title']." >> ";
+                        }
+                        @endphp
+                        @endif
+                        <option value="{{$category['id']}}">{{$html.$category['title']}}</option>
                         @endforeach
                         </select>
                     </div>

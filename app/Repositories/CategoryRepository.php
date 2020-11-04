@@ -22,54 +22,62 @@ class CategoryRepository
 	    return Category::where('parentId','=','0')->get();
 	}
 
+	/*public function getCategoriesTree()
+	{   
+		$catList=array();
+	    $parentCategories=$this->getParentCatogiesOnly();
+	    $categoryList=[];
+	    foreach($parentCategories as $category){
+	        $catList[$category->id]=$category->toArray();
+	        $catList[$category->id]['childs']=array();
+	    }
+
+	    foreach($catList as $parentId=>$cat){
+            $this->getChildByParentId($parentId,$catList[$parentId]['childs']); 
+	    }
+	    dump($catList);
+
+	    return $categoryList;
+	}*/
+
 	public function getCategoriesTree()
 	{
-	    // $parentCategories=$this->getParentCategories();
-	    $allCategories=$this->getAllCategories();
-	    // dd($allCategories);
-	    $categoryList=[];
-	    foreach($allCategories as $category){
-	    	/*$categoryList[$category->id]=$category->title;
-	    	$categoryList[]=$this->getParentCategories($category->id);*/
-
-	    	if ($category->parentId==0) {
-	    		$categoryList[]=array('id'=>$category->id,'title'=>$category->title);
+		$catList=array();
+		$allCategories=$this->getAllCategories();
+		foreach($allCategories as $category){
+			$catList[$category->id]=array('id'=>$category->id,'title'=>$category->title,'parent'=>$category->parentId);
+			if ($category->parentId!=0) {
+	    		$catList[$category->id]['childs']=array();
+	    		$this->getParentCategories($category->parentId,$catList[$category->id]['childs']);
 	    	}
-	    	else {
-	    		$temp=$this->getParentCategories($category->parentId);
-	    		// echo $category->id;
-	    		dump($temp);
-	    		$categoryList[]=array('id'=>$category->id,'title'=>$category->title);
-	    	}
-	    }
-	    return $categoryList;
+	    	// dd($catList);
+		}
+		// dump( $catList);
+		return $catList;
 	}
 
-	public function getParentCategories($id,$categoryList=[])
+	public function getChildByParentId($id,&$childs){
+
+        $categories=Category::where('parentId','=',$id)->get();
+        
+        foreach ($categories as $category) {
+        	if(!isset($childs[$category->id]['childs'])){
+        		 $childs[$category->id]=$category->toArray();
+                 $childs[$category->id]['childs']=array();
+        	}
+           $this->getChildByParentId($category->id,$childs[$category->id]['childs']);
+        }
+       
+	}
+
+	public function getParentCategories($id,&$categoryList)
 	{
-		$categories=Category::where('id','=',$id)->get();
-		// dd($categories);
-		foreach ($categories as $category) {
-		    if ($category->parentId==0) {
-	    		$categoryList[]=$category->title;
+		$category=Category::where('id','=',$id)->first();
+		// dump($categoryList);
+			$categoryList[]=array('id'=>$category->id,'title'=>$category->title);
+		    if ($category->parentId!=0) {
+	    		$this->getParentCategories($category->parentId,$categoryList);
 	    	}
-	    	else {
-	    		$categoryList[]=$category->title;
-	    		$temp=$this->getParentCategories($category->parentId,$categoryList);
-	    		$categoryList[]=$temp;
-	    	}
-		}
-		// print_r($categoryList);die;
-		// dd($category[0]->title);
-		// dump($category);
-		/*if(count($category)) {
-			$this->categories[$category[0]->id]=$category[0]->title;
-			$this->getParentCategories($category[0]->id);
-		}*/
-		// $this->categories[]=$category;
-		// $cat=$this->categories;
-		// $this->categories=[];
-		return $categoryList;
 	}
 
 	public function createNewCategory($request)
@@ -88,6 +96,30 @@ class CategoryRepository
 	    	'content'=>$request->description,
 	    ]);
 	    $request->session()->flash('success','Category Created Successfully');
+	    return redirect()->route('listcategories');
+	}
+
+	public function getOneCategory($id)
+	{
+	    return Category::find($id);
+	}
+
+	public function updateCategory($request,$id)
+	{
+	    $request->validate([
+	    	'category_name'=>'required',
+	    	'meta_title'=>'required',
+	    	'description'=>'required'
+	    ]);
+
+	    $category=$this->getOneCategory($id);
+	    $category->title=$request->category_name;
+	    $category->slug=Str::slug($request->category_name,'-');
+	    $category->parentId=$request->parent_category;
+	    $category->metaTitle=$request->meta_title;
+	    $category->content=$request->description;
+	    $category->save();
+	    $request->session()->flash('success','Category Updated Successfully');
 	    return redirect()->route('listcategories');
 	}
 }

@@ -37,25 +37,37 @@
                       @endcomponent
                     @endif
                       <label>Name</label>
-                      <input type="text" class="form-control" placeholder="Category Name" name="category_name" value="{{$category->category_name}}" required="true">
+                      <input type="text" class="form-control" placeholder="Category Name" name="category_name" value="{{$category->title}}" required="true">
                     </div>
                     <div class="form-group">
-                     @if($errors->has('logo'))
-                      @component('back.components.error')
-                        {{$errors->first('logo')}}
-                      @endcomponent
+                      <label>Parent Category</label>
+                      <select class="form-control" name="parent_category">
+                        <option value="0" selected>Select Parent Category</option>
+                        @foreach($categories as $pcategory)
+                        @php
+                        $html='';
+                        @endphp
+                        @if(isset($pcategory['childs']))
+                        @php
+                        foreach (array_reverse($pcategory['childs']) as $child) {
+                            $html.=$child['title']." >> ";
+                        }
+                        
+                        @endphp
                         @endif
-                    <label for="exampleInputFile">Bank Logo</label>
-                    <div class="input-group">
-                      <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="exampleInputFile" name="logo">
-                        <label class="custom-file-label" for="exampleInputFile">Choose file</label>
-                      </div>
-                      <div class="input-group-append">
-                        <span class="input-group-text" id="">Upload</span>
-                      </div>
+                        <option value="{{$pcategory['id']}}" {{ isset($parentExist['id']) && $pcategory['id']==$parentExist['id'] ? 'selected' : '' }}>{{$html.$pcategory['title']}}</option>
+                        @endforeach
+                        </select>
                     </div>
-                  </div>
+                    <div class="form-group">
+                    @if($errors->has('meta_title'))
+                      @component('back.components.error')
+                        {{$errors->first('meta_title')}}
+                      @endcomponent
+                    @endif
+                      <label>Meta Title</label>
+                      <input type="text" class="form-control" placeholder="Meta Title" name="meta_title" value="{{$category->metaTitle}}" required="true">
+                    </div>
                   <div class="form-group">
                       @if($errors->has('description'))
                       @component('back.components.error')
@@ -65,13 +77,9 @@
                       <label>Description</label>
                       <div class="mb-3">
                       <textarea class="textarea" placeholder="Description"
-                          style="width: 100%; height: 200px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;" name="description" value="" required="true">{{$category->description}}</textarea>
+                          style="width: 100%; height: 200px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;" name="description" value="" required="true">{{$category->content}}</textarea>
                       </div>
                     </div>
-                  <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck1" name="is_valid" {{$category->status==1 ? 'checked' :''}}>
-                    <label class="form-check-label" for="exampleCheck1">Valid</label>
-                  </div>
                 </div>
                 <!-- /.card-body -->
 

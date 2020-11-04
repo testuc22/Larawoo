@@ -1,6 +1,6 @@
 @extends('back.layouts.default')
 
-@section('title','Category List')
+@section('title','Attributes List')
 
 @section('content')
 
@@ -12,7 +12,7 @@
 
           <div class="col-sm-6">
 
-            <h1>Category List</h1>
+            <h1>Attributes List</h1>
 
           </div>
 
@@ -22,7 +22,7 @@
 
               <li class="breadcrumb-item"><a href="#">Home</a></li>
 
-              <li class="breadcrumb-item active">Category List</li>
+              <li class="breadcrumb-item active">Attributes List</li>
 
             </ol>
 
@@ -46,7 +46,7 @@
 
               {{-- <h3 class="card-title">All Categories</h3> --}}
 
-              <a href="{{ route('addcategory') }}" class="btn  bg-gradient-info" >Add New Category</a>
+              <a href="{{ route('addattribute') }}" class="btn  bg-gradient-info" >Add New Attribute</a>
 
             </div>
 
@@ -60,31 +60,31 @@
 
                 <tr>
 
-                  <th>Category</th>
+                  <th>Attribute</th>
                   <th>Edit/Delete</th>
-
+                  <th>View</th>
                 </tr>
 
                 </thead>
 
                 <tbody>
 
-                    @foreach($categories as $category)
+                    @foreach($attributes as $attribute)
 
                 <tr>
 
-                  <td>{{$category->title}}</td>
+                  <td>{{$attribute->name}}</td>
 
               
-                  <td><a href="{{route('editcategory',$category->id)}}"><i class="fas fa-edit fa-2x"></i></a>
+                  <td><a href="{{route('editattribute',$attribute->id)}}"><i class="fas fa-edit fa-2x"></i></a>
 
                     <a href="javascript:void(0)" style="margin-left: 15px;"><i class="fas fa-trash-alt fa-2x" style="color: red;"
 
                     onclick="
 
-                    if(confirm('Are you sure to Delete Category')){
+                    if(confirm('Are you sure to Delete Attribute')){
 
-                    document.getElementById('{{$category->id}}').submit(); return false;
+                    document.getElementById('{{$attribute->id}}').submit(); return false;
 
                     }
 
@@ -96,14 +96,14 @@
 
                     "></i></a>
 
-                    <form action="{{-- {{route('deletecategory',$category->id)}} --}}" method="post" id="{{$category->id}}">
+                    <form action="{{route('deleteattribute',$attribute->id)}}" method="post" id="{{$attribute->id}}">
 
                         {{@csrf_field()}}
 
                         {{@method_field('DELETE')}}
 
                     </form></td>
-
+                    <td><a href="{{route('showattributevalues',$attribute->id)}}" style="margin-left: 15px;"><i class="fas fa-eye fa-2x" style="color: green;"></i></a></td>
                 </tr>
 
                 @endforeach
@@ -114,9 +114,9 @@
 
                 <tr>
 
-                  <th>Category</th>
+                  <th>Attribute</th>
                   <th>Edit/Delete</th>
-
+                  <th>View</th>
                 </tr>
 
                 </tfoot>

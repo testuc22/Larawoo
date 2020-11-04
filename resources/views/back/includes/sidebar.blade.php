@@ -28,12 +28,12 @@
 							<p>Categories</p>
 						</a>
 					</li>
-					{{-- <li class="nav-item">
-						<a href="{{ route('listusers') }}" class="nav-link">
+					<li class="nav-item">
+						<a href="{{ route('listattributes') }}" class="nav-link">
 							<i class="far fa-circle nav-icon"></i>
-							<p>Users</p>
+							<p>Attributes</p>
 						</a>
-					</li> --}}
+					</li>
 					
 				</ul>
 			</nav>
