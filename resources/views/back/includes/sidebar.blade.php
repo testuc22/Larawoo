@@ -34,6 +34,24 @@
 							<p>Attributes</p>
 						</a>
 					</li>
+					<li class="nav-item">
+						<a href="{{ route('listbrands') }}" class="nav-link">
+							<i class="fas fa-copyright nav-icon"></i>
+							<p>Brands</p>
+						</a>
+					</li>
+					<li class="nav-item">
+						<a href="{{ route('listtags') }}" class="nav-link">
+							<i class="fas fa-tags nav-icon"></i>
+							<p>Tags</p>
+						</a>
+					</li>
+					<li class="nav-item">
+						<a href="{{ route('listproducts') }}" class="nav-link">
+							<i class="fas fa-tags nav-icon"></i>
+							<p>Products</p>
+						</a>
+					</li>
 					
 				</ul>
 			</nav>

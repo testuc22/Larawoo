@@ -26,20 +26,26 @@
               </div>
               <!-- /.card-header -->
               <!-- form start -->
-              <form role="form" action="{{ route('createattribute') }}" method="POST" enctype="multipart/form-data">
+              <form role="form" action="{{ route('createattributevalue') }}" method="POST" enctype="multipart/form-data">
                 {{@csrf_field()}}
+                <input type="hidden" name="attribute_id" value="{{$id}}">
                 <div class="card-body">
-                  <div class="form-group">
+                  <div class="form-group attribute_value_wrapper">
                     @if($errors->has('attribute_value'))
                       @component('back.components.error')
                         {{$errors->first('attribute_value')}}
                       @endcomponent
                     @endif
+                    <div class="attribute_value">
                       <label>Attribute Value</label>
-                      <input type="text" class="form-control" placeholder="Attribute Value" name="attribute_value" value="{{old('attribute_value')}}" required="true" style="width: 50%;">
-                      <a href=""><i class="fas fa-minus-circle fa-2x" style="color: red;"></i></a>
+                      <input type="text" class="form-control attribute-box" placeholder="Attribute Value" name="attribute_value[]" value="{{old('attribute_value')}}" required="true" style="width: 50%;">
+                      <a href="javascript:;" class="remove-attr-val"><i class="fas fa-minus-circle fa-2x"></i></a>
                     </div>
-                    <a href=""><i class="fas fa-plus-circle fa-2x" style="color: #17a2b8;"></i></a>
+                    </div>
+                    <div class="add-more-attr">
+                    <a href="javascript:;" class="add-more-attr-btn"><i class="fas fa-plus-circle fa-2x" style="color: #17a2b8;"></i></a>
+                      
+                    </div>
                 </div>
                 <!-- /.card-body -->
 
@@ -53,4 +59,22 @@
         </div>
     </div>
 </section>
+@endsection
+@section('script')
+<script type="text/javascript">
+    jQuery(document).ready(function($) {
+        var clonedAttribute=`<div class="attribute_value">
+                      <label>Attribute Value</label>
+                      <input type="text" class="form-control attribute-box" placeholder="Attribute Value" name="attribute_value[]" value="{{old('attribute_value')}}" required="true" style="width: 50%;">
+                      <a href="javascript:;" class="remove-attr-val"><i class="fas fa-minus-circle fa-2x"></i></a>
+                    </div>`
+        $(document).on('click', '.add-more-attr-btn', function(event) {
+            $(".attribute_value_wrapper").append(clonedAttribute)
+        });
+
+        $(document).on('click', '.remove-attr-val', function(event) {
+            $(this).parents('.attribute_value').remove()
+        });
+    });
+</script>
 @endsection

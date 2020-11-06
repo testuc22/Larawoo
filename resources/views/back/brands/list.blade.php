@@ -1,6 +1,6 @@
 @extends('back.layouts.default')
 
-@section('title','Attribute Values List')
+@section('title','Brand List')
 
 @section('content')
 
@@ -12,7 +12,7 @@
 
           <div class="col-sm-6">
 
-            <h1>Attribute Values List</h1>
+            <h1>Brand List</h1>
 
           </div>
 
@@ -22,7 +22,7 @@
 
               <li class="breadcrumb-item"><a href="#">Home</a></li>
 
-              <li class="breadcrumb-item active">Attribute Values List</li>
+              <li class="breadcrumb-item active">Brand List</li>
 
             </ol>
 
@@ -46,7 +46,7 @@
 
               {{-- <h3 class="card-title">All Categories</h3> --}}
 
-              <a href="{{ route('addattributevalue',$id) }}" class="btn  bg-gradient-info" >Add New Attribute Value</a>
+              <a href="{{ route('addbrand') }}" class="btn  bg-gradient-info" >Add New Brand</a>
 
             </div>
 
@@ -60,7 +60,7 @@
 
                 <tr>
 
-                  <th>Attribute Value</th>
+                  <th>Brand</th>
                   <th>Edit/Delete</th>
                 </tr>
 
@@ -68,14 +68,14 @@
 
                 <tbody>
 
-                    @foreach($attributeValues as $attributeValue)
+                    @foreach($brands as $brand)
 
                 <tr>
 
-                  <td>{{$attributeValue->value}}</td>
+                  <td>{{$brand->brandName}}</td>
 
               
-                  <td><a href="{{route('editattributevalue',['id'=>$id,'atrid'=>$attributeValue->id])}}"><i class="fas fa-edit fa-2x"></i></a>
+                  <td><a href="{{route('editbrand',$brand->id)}}"><i class="fas fa-edit fa-2x"></i></a>
 
                     <a href="javascript:void(0)" style="margin-left: 15px;"><i class="fas fa-trash-alt fa-2x" style="color: red;"
 
@@ -83,7 +83,7 @@
 
                     if(confirm('Are you sure to Delete Attribute')){
 
-                    document.getElementById('{{$attributeValue->id}}').submit(); return false;
+                    document.getElementById('{{$brand->id}}').submit(); return false;
 
                     }
 
@@ -95,7 +95,7 @@
 
                     "></i></a>
 
-                    <form action="{{route('deleteattributevalue',['id'=>$id,'atrid'=>$attributeValue->id])}}" method="post" id="{{$attributeValue->id}}">
+                    <form action="{{route('deletebrand',$brand->id)}}" method="post" id="{{$brand->id}}">
 
                         {{@csrf_field()}}
 
@@ -112,7 +112,7 @@
 
                 <tr>
 
-                  <th>Attribute Value</th>
+                  <th>Brand</th>
                   <th>Edit/Delete</th>
                 </tr>
 

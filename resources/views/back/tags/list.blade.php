@@ -1,6 +1,6 @@
 @extends('back.layouts.default')
 
-@section('title','Attribute Values List')
+@section('title','Tag List')
 
 @section('content')
 
@@ -12,7 +12,7 @@
 
           <div class="col-sm-6">
 
-            <h1>Attribute Values List</h1>
+            <h1>Tag List</h1>
 
           </div>
 
@@ -22,7 +22,7 @@
 
               <li class="breadcrumb-item"><a href="#">Home</a></li>
 
-              <li class="breadcrumb-item active">Attribute Values List</li>
+              <li class="breadcrumb-item active">Tag List</li>
 
             </ol>
 
@@ -46,7 +46,7 @@
 
               {{-- <h3 class="card-title">All Categories</h3> --}}
 
-              <a href="{{ route('addattributevalue',$id) }}" class="btn  bg-gradient-info" >Add New Attribute Value</a>
+              <a href="{{ route('addtag') }}" class="btn  bg-gradient-info" >Add New Tag</a>
 
             </div>
 
@@ -60,7 +60,7 @@
 
                 <tr>
 
-                  <th>Attribute Value</th>
+                  <th>Tag</th>
                   <th>Edit/Delete</th>
                 </tr>
 
@@ -68,22 +68,22 @@
 
                 <tbody>
 
-                    @foreach($attributeValues as $attributeValue)
+                    @foreach($tags as $tag)
 
                 <tr>
 
-                  <td>{{$attributeValue->value}}</td>
+                  <td>{{$tag->title}}</td>
 
               
-                  <td><a href="{{route('editattributevalue',['id'=>$id,'atrid'=>$attributeValue->id])}}"><i class="fas fa-edit fa-2x"></i></a>
+                  <td><a href="{{route('edittag',$tag->id)}}"><i class="fas fa-edit fa-2x"></i></a>
 
                     <a href="javascript:void(0)" style="margin-left: 15px;"><i class="fas fa-trash-alt fa-2x" style="color: red;"
 
                     onclick="
 
-                    if(confirm('Are you sure to Delete Attribute')){
+                    if(confirm('Are you sure to Delete Tag')){
 
-                    document.getElementById('{{$attributeValue->id}}').submit(); return false;
+                    document.getElementById('{{$tag->id}}').submit(); return false;
 
                     }
 
@@ -95,7 +95,7 @@
 
                     "></i></a>
 
-                    <form action="{{route('deleteattributevalue',['id'=>$id,'atrid'=>$attributeValue->id])}}" method="post" id="{{$attributeValue->id}}">
+                    <form action="{{route('deletetag',$tag->id)}}" method="post" id="{{$tag->id}}">
 
                         {{@csrf_field()}}
 
@@ -112,7 +112,7 @@
 
                 <tr>
 
-                  <th>Attribute Value</th>
+                  <th>Tag</th>
                   <th>Edit/Delete</th>
                 </tr>
 

@@ -36,7 +36,41 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	 	Route::name('editattribute')->get('editattribute/{id}', [App\Http\Controllers\Back\AttributeController::class,'getEditAttributePage']);
 	 	Route::name('updateattribute')->put('updateattribute/{id}', [App\Http\Controllers\Back\AttributeController::class,'updateAttribute']);
 	 	Route::name('deleteattribute')->delete('deleteattribute/{id}', [App\Http\Controllers\Back\AttributeController::class,'deleteAttribute']);
+
+	 	/* Attribute Values Pages */
+
 	 	Route::name('showattributevalues')->get('showattributevalues/{id}', [App\Http\Controllers\Back\AttributeController::class,'getAllAttributeValuesById']);
 	 	Route::name('addattributevalue')->get('addattributevalue/{id}', [App\Http\Controllers\Back\AttributeController::class,'getCreateAttributeValuePage']);
+	 	Route::name('createattributevalue')->post('createattributevalue', [App\Http\Controllers\Back\AttributeController::class,'createNewAttributeValue']);
+	 	Route::name('editattributevalue')->get('editattributevalue/{id}/{atrid}', [App\Http\Controllers\Back\AttributeController::class,'getEditAttributeValuePage']);
+	 	Route::name('updateattributevalue')->put('updateattributevalue/{id}', [App\Http\Controllers\Back\AttributeController::class,'updateAttributeValue']);
+	 	Route::name('deleteattributevalue')->delete('deleteattributevalue/{id}/{atrid}', [App\Http\Controllers\Back\AttributeController::class,'deleteAttributeValue']);
+
+	 	/* Brands Pages */
+
+	 	Route::name('listbrands')->get('listbrands', [App\Http\Controllers\Back\BrandController::class,'getAllBrands']);
+	 	Route::name('addbrand')->get('addbrand', [App\Http\Controllers\Back\BrandController::class,'getCreateBrandPage']);
+	 	Route::name('createbrand')->post('createbrand', [App\Http\Controllers\Back\BrandController::class,'createBrand']);
+	 	Route::name('editbrand')->get('editbrand/{id}', [App\Http\Controllers\Back\BrandController::class,'getEditBrandPage']);
+	 	Route::name('updatebrand')->put('updatebrand/{id}', [App\Http\Controllers\Back\BrandController::class,'updateBrand']);
+	 	Route::name('deletebrand')->delete('deletebrand/{id}', [App\Http\Controllers\Back\BrandController::class,'deleteBrand']);
+
+	 	/* Tag Pages */
+
+	 	Route::name('listtags')->get('listtags', [App\Http\Controllers\Back\TagController::class,'getAllTags']);
+	 	Route::name('addtag')->get('addtag', [App\Http\Controllers\Back\TagController::class,'getCreateTagPage']);
+	 	Route::name('createtag')->post('createtag', [App\Http\Controllers\Back\TagController::class,'createTag']);
+	 	Route::name('edittag')->get('edittag/{id}', [App\Http\Controllers\Back\TagController::class,'getEditTagPage']);
+	 	Route::name('updatetag')->put('updatetag/{id}', [App\Http\Controllers\Back\TagController::class,'updateTag']);
+	 	Route::name('deletetag')->delete('deletetag/{id}', [App\Http\Controllers\Back\TagController::class,'deleteTag']);
+
+	 	/* Product Pages */
+
+	 	Route::name('listproducts')->get('listproducts', [App\Http\Controllers\Back\ProductController::class,'getAllProducts']);
+	 	Route::name('addproduct')->get('addproduct', [App\Http\Controllers\Back\ProductController::class,'getCreateProductPage']);
+	 	Route::name('createproduct')->post('createproduct', [App\Http\Controllers\Back\ProductController::class,'createProduct']);
+	 	Route::name('editproduct')->get('editproduct/{id}', [App\Http\Controllers\Back\ProductController::class,'getEditProductPage']);
+	 	Route::name('updateproduct')->get('updateproduct/{id}', [App\Http\Controllers\Back\ProductController::class,'updateProduct']);
+
 	});
 });

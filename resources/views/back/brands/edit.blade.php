@@ -1,16 +1,16 @@
 @extends('back.layouts.default')
-@section('title','Edit Attribute Values')
+@section('title','Edit Brand')
 @section('content')
 <section class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Edit Attribute Values</h1>
+            <h1>Edit Brand</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Edit Attribute Values</li>
+              <li class="breadcrumb-item active">Edit Brand</li>
             </ol>
           </div>
         </div>
@@ -22,23 +22,22 @@
           <div class="col-md-12">
             <div class="card card-primary">
               <div class="card-header bg-info text-white">
-                <h3 class="card-title">Edit Attribute Values</h3>
+                <h3 class="card-title">Edit Brand</h3>
               </div>
               <!-- /.card-header -->
               <!-- form start -->
-              <form role="form" action="{{route('updateattributevalue',$attributeValue->id)}}" method="POST" enctype="multipart/form-data">
+              <form role="form" action="{{route('updatebrand',$brand->id)}}" method="POST" enctype="multipart/form-data">
                   {{@csrf_field()}}
                   {{@method_field('PUT')}}
-                  <input type="hidden" name="attribute_id" value="{{$id}}">
                 <div class="card-body">
                   <div class="form-group">
-                    @if($errors->has('attribute_value'))
+                    @if($errors->has('brand_name'))
                       @component('back.components.error')
-                        {{$errors->first('attribute_value')}}
+                        {{$errors->first('brand_name')}}
                       @endcomponent
                     @endif
-                      <label>Attribute Value</label>
-                      <input type="text" class="form-control" placeholder="Attribute Value" name="attribute_value" value="{{$attributeValue->value}}" required="true">
+                      <label>Brand Name</label>
+                      <input type="text" class="form-control" placeholder="Brand Name" name="brand_name" value="{{$brand->brandName}}" required="true">
                     </div>
                 </div>
                 <!-- /.card-body -->

@@ -560,6 +560,22 @@ pre code {
   margin-left: auto;
 }
 
+.remove-attr-val{
+      position: absolute;
+    right: 466px;
+    display: block;
+    /*top: 100px;*/
+    
+}
+.remove-attr-val i{
+  color: red;
+}
+.remove-attr-val i:hover{
+  color: darkred;
+}
+.add-more-attr-btn{
+      margin: 0 0 0 200px;
+}
 @media (min-width: 576px) {
   .container {
     max-width: 540px;
@@ -31094,3 +31110,6 @@ a.text-muted:hover {
   color: #ffffff;
 }
 /*# sourceMappingURL=adminlte.css.map */
+
+
+}
