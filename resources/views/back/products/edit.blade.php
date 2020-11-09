@@ -1,22 +1,12 @@
 @extends('back.layouts.default')
 @section('title','Edit Product')
+@section('css')
+<link rel="stylesheet" href="{{asset('admin/bootstrap-tagsinput.css')}}">
+@endsection
 @section('content')
-<ul class="nav nav-tabs">
-  <li class="nav-item">
-    <a class="nav-link active" data-toggle="tab" href="#updateProduct">Edit Product</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="tab" href="#productimages">Product Images</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="tab" href="#producttags">Product Tags</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" data-toggle="tab" href="#combinations">Combinations</a>
-  </li>
-</ul>
+@include('back.includes.tabs')
 <div class="tab-content">
-    <div class="tab-pane container  active" id="updateProduct">
+    <div class="tab-pane container active " id="updateProduct">
 <section class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
@@ -177,30 +167,156 @@
 </section>
 </div>
 <div class="tab-pane container fade" id="productimages">
-    here are we images
+@include('back.includes.product-images')
 </div>
 <div class="tab-pane container fade" id="producttags">
-    here are we tags
+@include('back.includes.product-tags')   
 </div>
 <div class="tab-pane container fade" id="combinations">
-    here are we
+    
 </div>
 </div>
 @endsection
 @section('script')
+<script src="{{asset('admin/bootstrap-tagsinput.js')}}"></script>
 <script type="text/javascript">
     jQuery(document).ready(function($) {
         $("#publishedAt").datetimepicker({
             format: 'L'
         });
         $("#start_end").datetimepicker();
-        /*$("#start_end").daterangepicker({
-              timePicker: true,
-              timePickerIncrement: 30,
-              locale: {
-                format: 'DD/MM/YYYY hh:mm A'
-              }
-            })*/
+
+    var plupload=$("#uploader").plupload({
+        // General settings
+        runtimes : 'html5,flash,silverlight,html4',
+        url : '{{route('upload-product-images',$product->id)}}',
+
+        // User can upload no more then 20 files in one go (sets multiple_queues to false)
+        max_file_count: 20,
+        
+        
+
+        // Resize images on clientside if we can
+        /*resize : {
+            width : 200, 
+            height : 200, 
+            quality : 90,
+            crop: true // crop to exact dimensions
+        }*/
+        
+        filters : {
+            // Maximum file size
+            max_file_size : '10mb',
+            // Specify what files to browse for
+            mime_types: [
+                {title : "Image files", extensions : "jpg,jpeg,png"}
+            ]
+        },
+
+        // Rename files by clicking on their titles
+        rename: true,
+        
+        // Sort files
+        sortable: true,
+
+        // Enable ability to drag'n'drop files onto the widget (currently only HTML5 supports that)
+        dragdrop: true,
+
+        // Views to activate
+        views: {
+            list: true,
+            thumbs: true, // Show thumbs
+            active: 'thumbs'
+        },
+
+        // Flash settings
+        flash_swf_url : '{{asset('admin/Moxie.swf')}}',
+
+        // Silverlight settings
+        silverlight_xap_url : '{{asset('admin/Moxie.xap')}}',
+        multipart_params:{
+            '_token':'{{csrf_token()}}',
+            'model':'Product'
+        },
+        init:{
+            FilesAdded:function(up,files){
+                $('#uploader').plupload('start');
+            },
+            FileUploaded:function(up,file,result){
+                let thumbId=file.id;
+                $(`#${thumbId}`).attr('data-thumb', result.response)
+                $(`#${thumbId}`).find('.plupload_action_icon').attr('data-thumb', thumbId)
+                // console.log(result,file)
+            }
+        }
+        
+    });
+plupload.init();
+
+let productImages=@json($images);
+let imagesHtml='';
+productImages.forEach((element,index)=>{
+    imagesHtml+=`<li class="plupload_done ui-state-default plupload_file" id="image_${element.id}" style="width:100px;" data-thumb="${element.id}">
+    <div class="plupload_file_thumb plupload_thumb_embedded" style="width: 100px; height: 60px;" data-image="${element.imageUrl}">
+        <div class="plupload_file_dummy ui-widget-content" style="line-height: 60px;">
+            <span class="ui-state-disabled">png </span>
+        </div>
+        <canvas width="100" height="60" class="uid_1emm3lh1p7h97q1d2611shfjte_canvas"></canvas>
+    </div>
+        <div class="plupload_file_status">
+            <div class="plupload_file_progress ui-widget-header" style="width: 100%;">
+             </div>
+            <span class="plupload_file_percent">100%</span>
+        </div>
+    <div class="plupload_file_name" title="${element.image}">
+        <span class="plupload_file_name_wrapper">${element.image} </span>
+    </div>
+    <div class="plupload_file_action">
+        <div class="plupload_action_icon ui-icon ui-icon-circle-check" data-thumb="image_${element.id}"> 
+        </div>
+    </div>
+    <div class="plupload_file_size">4 kb</div>
+    <div class="plupload_file_fields">
+        <input type="hidden" name="uploader_0_name" value="${element.imageUrl}"><input type="hidden" name="uploader_0_status" value="done">
+    </div>
+</li>`
+})
+console.log(productImages)
+// $("#uploader_filelist").html(imagesHtml)
+$(".uid_1emm3lh1p7h97q1d2611shfjte_canvas").each(function(index, el) {
+        // var c=$(this);
+       var ctx = el.getContext("2d");
+       var image=  new Image()
+           image.src=$(this).parents(".plupload_file_thumb").data('image');
+           image.onload= function(){
+              ctx.drawImage(image, 0, 0);
+           }
+        
+});
+$(document).on('click', '.plupload_action_icon,.delete-product-image', function(event) {
+    let _data=$(this).data('thumb')
+    let _thumbId=$(this).parents(`#${_data}`).data('thumb')
+    $.ajax({
+        url: '{{route('delete-product-image')}}',
+        type: 'GET',
+        data: {image: _thumbId},
+        success:function(result){
+            $(`#${_data}`).remove()
+        }
+    });
+    
+});
+
+$("#product_tags").tagsinput({
+    itemValue: 'id',
+    itemText:'tag'
+});
+
+$(document).on('click', '.add-tag-product', function(event) {
+    let tagId=$(this).data('tag');
+    let tag=$(this).text()
+    $("#product_tags").tagsinput('add',{id:tagId,tag:tag})
+});    
     });
 </script>
 @endsection

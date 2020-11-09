@@ -20,4 +20,14 @@ class Product extends Model
     {
         return $this->hasOne(ProductBrand::class);
     }
+
+    public function productImages()
+    {
+        return $this->morphMany(ProductImage::class,'imageable');
+    }
+
+    public function productTags()
+    {
+        return $this->hasMany(ProductTag::class);
+    }
 }

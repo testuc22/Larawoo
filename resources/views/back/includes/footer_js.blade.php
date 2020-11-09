@@ -33,6 +33,10 @@ jQuery Knob Chart
 <!-- AdminLTE App -->
 <script src="{{asset('admin/dist/js/adminlte.js')}}"></script>
 <script src="{{asset('admin/plugins/toastr/toastr.min.js')}}"></script>
+<script src="{{asset('admin/plupload.full.min.js')}}"></script>
+<script src="{{asset('admin/jquery.ui.plupload.js')}}"></script>
+{{-- <script src="{{asset('admin/jquery.plupload.queue.js')}}"></script> --}}
+<script src="{{asset('admin/moxie.js')}}"></script>
 <script src="{{asset('admin/dist/js/custom.js')}}"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <!-- <script src="dist/js/pages/dashboard.js"></script>

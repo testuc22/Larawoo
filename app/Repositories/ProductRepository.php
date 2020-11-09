@@ -6,10 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\{
 	Product,
 	ProductCategory,
-	ProductBrand
+	ProductBrand,
+	ProductImage,
+	ProductTag,
+	Tag
 };
 use Str;
-use Auth;
+use Auth,File;
 class ProductRepository
 {
 	
@@ -88,7 +91,36 @@ class ProductRepository
 	    	'product_id'=>$id,
 	    	'brand_id'=>$request->brand
 	    ]);
-	}
 	$request->session()->flash('success','Product Updated Successfully');
 	    return redirect()->route('editproduct',['id'=>$id,'tab'=>'updateProduct']);
+	}
+
+	public function uploadProductImages($request,$id)
+	{
+	    if ($request->has('file')) {
+	    	$file=$request->file;
+			$destinationPath = public_path() . '/product-images/';
+			$fileName = date('Y.m.d') . time(). $file->getClientOriginalName();
+			$upload_image = $file->move($destinationPath, $fileName);
+	    }
+	    $model=$this->getModelName($request->model);
+	    $findProductType=$model::find($id);
+	    $productImage= new ProductImage;
+	    $productImage->image=$fileName;
+	    $productImage->imageable()->associate($findProductType);
+	    $productImage->save();
+	    return $productImage->id;
+	}
+
+	public function getModelName($model):string
+	{
+		return "App\\Models\\".$model;	    
+	}
+
+	public function deleteProductImage($request)
+	{
+	    $productImage=ProductImage::find($request->image);
+	    File::delete(public_path() . '/product-images/'.$productImage->image);
+	    $productImage->delete();
+	}
 }

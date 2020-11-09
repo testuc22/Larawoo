@@ -70,7 +70,9 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	 	Route::name('addproduct')->get('addproduct', [App\Http\Controllers\Back\ProductController::class,'getCreateProductPage']);
 	 	Route::name('createproduct')->post('createproduct', [App\Http\Controllers\Back\ProductController::class,'createProduct']);
 	 	Route::name('editproduct')->get('editproduct/{id}', [App\Http\Controllers\Back\ProductController::class,'getEditProductPage']);
-	 	Route::name('updateproduct')->get('updateproduct/{id}', [App\Http\Controllers\Back\ProductController::class,'updateProduct']);
+	 	Route::name('updateproduct')->put('updateproduct/{id}/{tab?}', [App\Http\Controllers\Back\ProductController::class,'updateProduct']);
+	 	Route::name('upload-product-images')->post('upload-product-images/{id}', [App\Http\Controllers\Back\ProductController::class,'uploadProductImages']);
+	 	Route::name('delete-product-image')->get('delete-product-image', [App\Http\Controllers\Back\ProductController::class,'deleteProductImage']);
 
 	});
 });

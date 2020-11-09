@@ -54,13 +54,29 @@ class ProductController extends Controller
         $brands=$this->brandRepository->getAllBrands();
         $tags=$this->tagRepository->getAllTags();
         $product=$this->productRepository->getProductById($id);
-        // return $product->productCategory;
-        return view('back/products/edit')->with(['categories'=>$categories,'brands'=>$brands,'tags'=>$tags,'product'=>$product]);
+        // return $product->productImages;
+        $product->productImages->map(function($item){
+        	$item->imageUrl=asset('/product-images/'.$item->image);
+        	// $item->size=getimagesize(asset('/product-images/'.$item->image));
+        });
+        return view('back/products/edit')->with(['categories'=>$categories,'brands'=>$brands,'tags'=>$tags,'product'=>$product,'images'=>$product->productImages]);
     }
 
     public function updateProduct(ProductRequest $request,$id)
     {
         $result=$this->productRepository->updateProduct($request,$id);
+        return $result;
+    }
+
+    public function uploadProductImages(Request $request,$id)
+    {
+        $result=$this->productRepository->uploadProductImages($request,$id);
+        return $result;
+    }
+
+    public function deleteProductImage(Request $request)
+    {
+        $result=$this->productRepository->deleteProductImage($request);
         return $result;
     }
 }
