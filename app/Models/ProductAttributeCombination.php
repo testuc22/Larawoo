@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class ProductAttributeCombination extends Model
 {
     use HasFactory;
+
+    protected $fillable=['attribute_id','product_attribute_id'];
 }

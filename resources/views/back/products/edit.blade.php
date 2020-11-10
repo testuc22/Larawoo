@@ -173,7 +173,7 @@
 @include('back.includes.product-tags')   
 </div>
 <div class="tab-pane container fade" id="combinations">
-    
+@include('back.includes.product-combinations')    
 </div>
 </div>
 @endsection
@@ -312,11 +312,104 @@ $("#product_tags").tagsinput({
     itemText:'tag'
 });
 
+$("#product_combinations").tagsinput({
+    itemValue: 'id',
+    itemText:'attribute'
+});
+
 $(document).on('click', '.add-tag-product', function(event) {
     let tagId=$(this).data('tag');
     let tag=$(this).text()
     $("#product_tags").tagsinput('add',{id:tagId,tag:tag})
-});    
+});
+
+$(document).on('click', '.save_tags', function(event) {
+    let productTags=$("#product_tags").val();
+    if (productTags.trim()!="") {
+        $.ajax({
+            url: '{{route('assign-product-tags',$product->id)}}',
+            type: 'POST',
+            data: {productTags: productTags,'_token':'{{csrf_token()}}'},
+            success:function(result){
+                $("#success-msg").fadeIn('400').fadeOut('slow');
+            }
+        });             
+    }
+}); 
+let productTags=JSON.parse('{!!json_encode($productTags)!!}');
+    console.log(productTags)
+if (productTags.length) {
+    productTags.forEach( function(element, index) {
+        $("#product_tags").tagsinput('add',{'id':element.id,'tag':element.tag})        
     });
+}
+var proComb=[];
+$(document).on('change', '.single_attribute', function(event) {
+    let attributId=$(this).data('attributeid');
+    let attributValue=$(this).data('label');
+    let attributGroup=$(this).data('group');
+    if ($(this).is(':checked')) {
+        $("#product_combinations").tagsinput('add',{id:attributId,attribute:attributValue})
+        let aIndex=-1;
+        proComb.forEach( function(element, index) {
+            element.forEach( function(element2, index2) {
+                if (element2.group==attributGroup) {
+                    aIndex=element2.id;
+                }
+            });
+        });
+        if (aIndex!=-1) {
+            proComb[aIndex].push({id:attributId,[attributId]:attributValue,group:attributGroup})
+        }
+        else {
+            proComb[attributId]=[{id:attributId,[attributId]:attributValue,group:attributGroup}]
+        }
+    }
+    else {
+        $("#product_combinations").tagsinput('remove',{id:attributId,attribute:attributValue})
+        let index;
+        proComb.forEach( function(element, index) {
+            element.forEach( function(element2, index2) {
+                if (element2.id==attributId) {
+                    proComb[index].splice(index2, 1)
+                    proComb.splice(index,1);
+                }
+            });
+        });
+        
+    }
+    console.log(proComb)
+});
+
+$(document).on('click', '.generate_combinations', function(event) {
+    let productCombinations=$("#product_combinations").val();
+    proComb=proComb.filter(Boolean);
+    if (productCombinations.trim()!="") {
+        $.ajax({
+            url: '{{route('generate-product-combinations',$product->id)}}',
+            type: 'POST',
+            data: {proComb: proComb,'_token':'{{csrf_token()}}'},
+            success:function(result){
+                //$("#success-msg").fadeIn('400').fadeOut('slow');
+            }
+        });             
+    }
+});
+
+$("#product_combinations").on('itemRemoved',(event)=>{
+    
+        proComb.forEach( function(element, index) {
+            element.forEach( function(element2, index2) {
+                if (element2.id==event.item.id) {
+                console.log(index2)
+                    proComb[index].splice(index2, 1)
+                    proComb.splice(index,1);
+                }
+            });
+        });
+    let checkBox=event.item.id;
+    $(`[data-attributeid="${checkBox}"]`).prop('checked', false);
+});
+});
 </script>
 @endsection

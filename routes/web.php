@@ -73,6 +73,8 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	 	Route::name('updateproduct')->put('updateproduct/{id}/{tab?}', [App\Http\Controllers\Back\ProductController::class,'updateProduct']);
 	 	Route::name('upload-product-images')->post('upload-product-images/{id}', [App\Http\Controllers\Back\ProductController::class,'uploadProductImages']);
 	 	Route::name('delete-product-image')->get('delete-product-image', [App\Http\Controllers\Back\ProductController::class,'deleteProductImage']);
+	 	Route::name('assign-product-tags')->post('assign-product-tags/{id}', [App\Http\Controllers\Back\ProductController::class,'assignTagsToProduct']);
+	 	Route::name('generate-product-combinations')->post('generate-product-combinations/{id}', [App\Http\Controllers\Back\ProductController::class,'generateProductCombinations']);
 
 	});
 });

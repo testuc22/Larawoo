@@ -9,7 +9,9 @@ use App\Models\{
 	ProductBrand,
 	ProductImage,
 	ProductTag,
-	Tag
+	Tag,
+	ProductAttribute,
+	ProductAttributeCombination
 };
 use Str;
 use Auth,File;
@@ -122,5 +124,61 @@ class ProductRepository
 	    $productImage=ProductImage::find($request->image);
 	    File::delete(public_path() . '/product-images/'.$productImage->image);
 	    $productImage->delete();
+	}
+
+	public function assignTagsToProduct($request,$id)
+	{
+	    $productTags=explode(',',$request->productTags);
+	    $product=Product::find($id);
+	    $data=[];
+	    foreach ($productTags as $productTag) {
+	        $data[]=['product_id'=>$id,'tag_id'=>$productTag];
+	    }
+	    $product->productTags()->sync($productTags);
+	    return response()->json(['message'=>'success'],200);
+	}
+
+	public function generateProductCombinations($request,$id)
+	{
+	    $totalSelectedAttributes=count($request->proComb);
+	    $selectedAttributes=$request->proComb;
+	    $startElement=$selectedAttributes[0];
+	    $restElements=array_slice($selectedAttributes, 1);
+	    /*usort($selectedAttributes, function($a, $b) {
+		    return $a['group'] <=> $b['group'];
+		});*/
+		$mergeArrays=[];
+		$results = array(array());
+		foreach ($startElement as $selectedAttribute) {
+			$temp[]=['id'=>$selectedAttribute['id'],'group'=>$selectedAttribute['group']];
+
+			foreach ($restElements as $restElementKey=>$valueToMerge) {
+			        // if (($selectedAttribute['id']!=$valueToMerge['id'])&&($selectedAttribute['group']==$valueToMerge['group'])) {
+			        	// $mergeArrays[]=array_merge($selectedAttribute,$valueToMerge);
+			        // }
+					foreach ($valueToMerge as $valueToMergeKey => $value) {
+						$temp[]=['id'=>$value['id'],'group'=>$value['group']];		
+					}
+			    }
+			    $mergeArrays[]=$temp;    
+		}
+		
+
+
+		/*$result = array(array());
+	    foreach ($selectedAttributes as $property => $property_values) {
+	        $tmp = array();
+	        foreach ($result as $result_item) {
+	            foreach ($property_values as $property_key => $property_value) {
+	                $tmp[] = $result_item + array($property_key => $property_value);
+	            }
+	        }
+	        $result = $tmp;
+	    }*/
+		$abc=array_chunk($selectedAttributes, 1);
+		return $abc;
+	    // dd($mergeArrays);
+		return $mergeArrays;
+
 	}
 }

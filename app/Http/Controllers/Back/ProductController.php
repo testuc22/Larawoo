@@ -54,12 +54,16 @@ class ProductController extends Controller
         $brands=$this->brandRepository->getAllBrands();
         $tags=$this->tagRepository->getAllTags();
         $product=$this->productRepository->getProductById($id);
-        // return $product->productImages;
+        $attributes=$this->attributeRepository->getAllAttributes();
         $product->productImages->map(function($item){
         	$item->imageUrl=asset('/product-images/'.$item->image);
         	// $item->size=getimagesize(asset('/product-images/'.$item->image));
         });
-        return view('back/products/edit')->with(['categories'=>$categories,'brands'=>$brands,'tags'=>$tags,'product'=>$product,'images'=>$product->productImages]);
+        $pTags=[];
+        foreach ($product->productTags as $productTag) {
+            $pTags[]=['tag'=>$productTag->title,'id'=>$productTag->id];
+        }
+        return view('back/products/edit')->with(['categories'=>$categories,'brands'=>$brands,'tags'=>$tags,'product'=>$product,'images'=>$product->productImages,'productTags'=>$pTags,'attributes'=>$attributes]);
     }
 
     public function updateProduct(ProductRequest $request,$id)
@@ -77,6 +81,18 @@ class ProductController extends Controller
     public function deleteProductImage(Request $request)
     {
         $result=$this->productRepository->deleteProductImage($request);
+        return $result;
+    }
+
+    public function assignTagsToProduct(Request $request,$id)
+    {
+        $result=$this->productRepository->assignTagsToProduct($request,$id);
+        return $result;
+    }
+
+    public function generateProductCombinations(Request $request,$id)
+    {
+        $result=$this->productRepository->generateProductCombinations($request,$id);
         return $result;
     }
 }

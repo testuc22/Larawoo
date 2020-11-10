@@ -9,4 +9,6 @@ class ProductTag extends Model
 {
     use HasFactory;
     protected $fillable=['product_id','tag_id'];
+    protected $table="product_tag";
+    
 }
