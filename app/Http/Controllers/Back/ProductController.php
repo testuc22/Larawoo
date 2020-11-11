@@ -63,7 +63,7 @@ class ProductController extends Controller
         foreach ($product->productTags as $productTag) {
             $pTags[]=['tag'=>$productTag->title,'id'=>$productTag->id];
         }
-        return view('back/products/edit')->with(['categories'=>$categories,'brands'=>$brands,'tags'=>$tags,'product'=>$product,'images'=>$product->productImages,'productTags'=>$pTags,'attributes'=>$attributes]);
+        return view('back/products/edit')->with(['categories'=>$categories,'brands'=>$brands,'tags'=>$tags,'product'=>$product,'images'=>$product->productImages,'productTags'=>$pTags,'attributes'=>$attributes,'variants'=>$product->productVariants]);
     }
 
     public function updateProduct(ProductRequest $request,$id)

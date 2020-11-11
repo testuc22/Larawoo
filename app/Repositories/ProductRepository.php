@@ -140,45 +140,58 @@ class ProductRepository
 
 	public function generateProductCombinations($request,$id)
 	{
-	    $totalSelectedAttributes=count($request->proComb);
 	    $selectedAttributes=$request->proComb;
-	    $startElement=$selectedAttributes[0];
-	    $restElements=array_slice($selectedAttributes, 1);
-	    /*usort($selectedAttributes, function($a, $b) {
-		    return $a['group'] <=> $b['group'];
-		});*/
 		$mergeArrays=[];
-		$results = array(array());
-		foreach ($startElement as $selectedAttribute) {
-			$temp[]=['id'=>$selectedAttribute['id'],'group'=>$selectedAttribute['group']];
-
-			foreach ($restElements as $restElementKey=>$valueToMerge) {
-			        // if (($selectedAttribute['id']!=$valueToMerge['id'])&&($selectedAttribute['group']==$valueToMerge['group'])) {
-			        	// $mergeArrays[]=array_merge($selectedAttribute,$valueToMerge);
-			        // }
-					foreach ($valueToMerge as $valueToMergeKey => $value) {
-						$temp[]=['id'=>$value['id'],'group'=>$value['group']];		
-					}
-			    }
-			    $mergeArrays[]=$temp;    
+		$tempArray=[];
+		foreach ($selectedAttributes as $key=>$value) {
+		    foreach ($value as $key2 => $value2) {
+		        $tempArray[$key2][$value2]=$value2;
+		    }
 		}
-		
-
-
-		/*$result = array(array());
-	    foreach ($selectedAttributes as $property => $property_values) {
-	        $tmp = array();
-	        foreach ($result as $result_item) {
-	            foreach ($property_values as $property_key => $property_value) {
-	                $tmp[] = $result_item + array($property_key => $property_value);
-	            }
-	        }
-	        $result = $tmp;
-	    }*/
-		$abc=array_chunk($selectedAttributes, 1);
-		return $abc;
-	    // dd($mergeArrays);
-		return $mergeArrays;
-
+		$mergeArrays=self::getCombinations(array_values($tempArray));
+		$attributesLength=count($mergeArrays);
+		$product=Product::find($id);
+		$data=[];
+		for($i=1;$i<=$attributesLength;$i++) {
+		    $data[]=array(
+		    	'quantity'=>1,
+		    	'product_id'=>$id
+		    );
+		}
+		$variants=$product->productVariants()->createMany($data);
+		$productImage=$product->productImages->first();
+		$this->saveCombinations($variants,$mergeArrays,$productImage);
+		return response()->json(['Image'=>$productImage,'variants'=>$variants]);
 	}
+
+	public function saveCombinations($variants,$mergeArrays,$Image)
+	{
+	    foreach ($variants as $key => $variant) {
+	        $variant->variantAttributes()->syncWithoutDetaching($mergeArrays[$key]);
+		    $findProductType=ProductAttribute::find($variant->id);
+		    $productImage= new ProductImage;
+		    $productImage->image=$Image->image;
+		    $productImage->imageable()->associate($findProductType);
+		    $productImage->save();
+	    }
+	}
+
+	public static function getCombinations($list)
+	{
+	    if (count($list) <= 1) {
+            return count($list) ? array_map(function ($v) { return array($v); }, $list[0]) : $list;
+        }
+        $res = array();
+        $first = array_pop($list);
+        foreach ($first as $attribute) {
+            $tab = self::getCombinations($list);
+            foreach ($tab as $to_add) {
+                $res[] = is_array($to_add) ? array_merge($to_add, array($attribute)) : array($to_add, $attribute);
+            }
+        }
+
+        return $res;
+	}
+
+	
 }

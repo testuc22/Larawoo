@@ -15,4 +15,9 @@ class AttributeValue extends Model
     {
         return $this->belongsTo(Attribute::class);
     }
+
+    public function attributeVariants()
+    {
+        return $this->belongsToMany(ProductAttribute::class,'product_attribute_combinations');
+    }
 }

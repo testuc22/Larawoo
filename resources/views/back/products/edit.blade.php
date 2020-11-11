@@ -351,19 +351,20 @@ $(document).on('change', '.single_attribute', function(event) {
     if ($(this).is(':checked')) {
         $("#product_combinations").tagsinput('add',{id:attributId,attribute:attributValue})
         let aIndex=-1;
-        proComb.forEach( function(element, index) {
+        /*proComb.forEach( function(element, index) {
             element.forEach( function(element2, index2) {
                 if (element2.group==attributGroup) {
                     aIndex=element2.id;
                 }
             });
-        });
-        if (aIndex!=-1) {
-            proComb[aIndex].push({id:attributId,[attributId]:attributValue,group:attributGroup})
+        });*/
+        proComb.push({[attributGroup]:attributId})
+        /*if (aIndex!=-1) {
+            proComb[aIndex].push({[attributGroup]:attributId})
         }
         else {
-            proComb[attributId]=[{id:attributId,[attributId]:attributValue,group:attributGroup}]
-        }
+            proComb[attributId]=[{[attributGroup]:attributId}]
+        }*/
     }
     else {
         $("#product_combinations").tagsinput('remove',{id:attributId,attribute:attributValue})
@@ -391,6 +392,7 @@ $(document).on('click', '.generate_combinations', function(event) {
             data: {proComb: proComb,'_token':'{{csrf_token()}}'},
             success:function(result){
                 //$("#success-msg").fadeIn('400').fadeOut('slow');
+                console.log(result)
             }
         });             
     }

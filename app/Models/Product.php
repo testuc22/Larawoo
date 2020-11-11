@@ -30,4 +30,9 @@ class Product extends Model
     {
         return $this->belongsToMany(Tag::class,'product_tag');
     }
+
+    public function productVariants()
+    {
+        return $this->hasMany(ProductAttribute::class);
+    }
 }
