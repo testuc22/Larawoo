@@ -576,6 +576,9 @@ pre code {
 .add-more-attr-btn{
       margin: 0 0 0 200px;
 }
+.image-border {
+  border: 2px solid aquamarine;
+}
 @media (min-width: 576px) {
   .container {
     max-width: 540px;

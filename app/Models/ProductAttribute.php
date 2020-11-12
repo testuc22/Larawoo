@@ -13,7 +13,7 @@ class ProductAttribute extends Model
 
     public function variantAttributes()
     {
-        return $this->belongsToMany(AttributeValue::class,'product_attribute_combinations');
+        return $this->belongsToMany(AttributeValue::class,'product_attribute_combinations')->withPivot('attribute_value_id');
     }
 
     public function productVariantImages()

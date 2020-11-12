@@ -351,31 +351,14 @@ $(document).on('change', '.single_attribute', function(event) {
     if ($(this).is(':checked')) {
         $("#product_combinations").tagsinput('add',{id:attributId,attribute:attributValue})
         let aIndex=-1;
-        /*proComb.forEach( function(element, index) {
-            element.forEach( function(element2, index2) {
-                if (element2.group==attributGroup) {
-                    aIndex=element2.id;
-                }
-            });
-        });*/
         proComb.push({[attributGroup]:attributId})
-        /*if (aIndex!=-1) {
-            proComb[aIndex].push({[attributGroup]:attributId})
-        }
-        else {
-            proComb[attributId]=[{[attributGroup]:attributId}]
-        }*/
     }
     else {
         $("#product_combinations").tagsinput('remove',{id:attributId,attribute:attributValue})
-        let index;
         proComb.forEach( function(element, index) {
-            element.forEach( function(element2, index2) {
-                if (element2.id==attributId) {
-                    proComb[index].splice(index2, 1)
-                    proComb.splice(index,1);
-                }
-            });
+            if (element[attributGroup]==attributId) {
+                proComb.splice(index, 1)
+            }
         });
         
     }
@@ -399,18 +382,51 @@ $(document).on('click', '.generate_combinations', function(event) {
 });
 
 $("#product_combinations").on('itemRemoved',(event)=>{
-    
+    console.log(event.item)
         proComb.forEach( function(element, index) {
-            element.forEach( function(element2, index2) {
-                if (element2.id==event.item.id) {
-                console.log(index2)
-                    proComb[index].splice(index2, 1)
-                    proComb.splice(index,1);
-                }
-            });
+            for (let i in element) {
+                if (element[i]==event.item.id) {
+                    proComb.splice(index, 1)
+                }                
+            }
         });
     let checkBox=event.item.id;
     $(`[data-attributeid="${checkBox}"]`).prop('checked', false);
+});
+
+$(document).on('click', '.variant_image', function(event) {
+    let image=$(this).find('img');
+    let totalVariantImages=$(this).parents('.variant-images').find('.comb-images')
+    let _count=parseInt(totalVariantImages.text())
+    if (image.hasClass('image-border')) {
+        totalVariantImages.text(--_count)
+        image.removeClass('image-border')
+    }
+    else{
+        totalVariantImages.text(++_count)
+        image.addClass('image-border')
+    }
+});
+
+$(document).on('click', '.save_variation_image', function(event) {
+    let images=$(this).parents('.variant-images').find('.image-border');
+    let imagesData=[];
+    if (images.length<1) {
+        return false;
+    }
+    images.each(function(index, el) {
+        imagesData.push({image:$(this).data('thumb'),variant:$(this).data('variant')})
+    });
+    $.ajax({
+        url: '{{route('update-variant-images')}}',
+        type: 'POST',
+        data: {images: imagesData,'_token':'{{csrf_token()}}'},
+        success:function(result){
+            //$("#success-msg").fadeIn('400').fadeOut('slow');
+            console.log(result)
+        }
+    });
+
 });
 });
 </script>

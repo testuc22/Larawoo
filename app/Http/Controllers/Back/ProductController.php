@@ -63,6 +63,7 @@ class ProductController extends Controller
         foreach ($product->productTags as $productTag) {
             $pTags[]=['tag'=>$productTag->title,'id'=>$productTag->id];
         }
+        // return $product->productVariants;
         return view('back/products/edit')->with(['categories'=>$categories,'brands'=>$brands,'tags'=>$tags,'product'=>$product,'images'=>$product->productImages,'productTags'=>$pTags,'attributes'=>$attributes,'variants'=>$product->productVariants]);
     }
 
@@ -93,6 +94,12 @@ class ProductController extends Controller
     public function generateProductCombinations(Request $request,$id)
     {
         $result=$this->productRepository->generateProductCombinations($request,$id);
+        return $result;
+    }
+
+    public function updateVariantImages(Request $request)
+    {
+        $result=$this->productRepository->updateVariantImages($request);
         return $result;
     }
 }

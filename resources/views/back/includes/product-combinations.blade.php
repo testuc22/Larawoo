@@ -1,11 +1,15 @@
 <div>
 	<div class="row">
 		<div class="col-md-8">
-			<form method="post">
 				<div class="card-body">
+					<form method="post">
 					<div class="form-group">
-						<input type="text" name="product_combinations" id="product_combinations" class="form-control">
+						<input type="text" name="product_combinations" id="product_combinations" class="form-control" placeholder="Create Combinations">
 					</div>
+					<div class="card-footer">
+							<button type="button" class="btn btn-primary generate_combinations">Save</button>
+					</div>
+					</form>
 					<div class="form-group">
 						<div id="success-msg" style="display: none">
 							{{-- @component('back.components.success')
@@ -15,6 +19,9 @@
 						{{-- <x-product-combinations :product="$product"/> --}}
 		                    <div id="accordion">
 		                    	@foreach($variants as $variant)
+		                    	@php
+		                    	$variantImages=getProductVariantImages($variant);
+		                    	@endphp
 		                    	<div class="card">
 								    <div class="card-header">
 								      <a class="card-link" data-toggle="collapse" href="#collapseOne_{{$variant->id}}">
@@ -34,6 +41,24 @@
 									        </div>
 												<button type="button" class="btn btn-warning save_variation">Save</button>
 										</form>
+										<div class="variant-images">
+											<h3>Images</h3>
+											<span>Select Images Of this Combination</span>
+											<span class="comb-images">{{count($variantImages) }}</span>/
+											<span class="product-total-images">{{count($images)}}</span>
+											<div class="row mt-5">
+									        @foreach($images as $image)
+									        <a href="javascript:;" class="variant_image" >
+										        <div class="col-md-2 mb-3 variant-img">
+										            <div class="product-image">
+										                <img src="{{$image->imageUrl}}" height="50" width="70" class="{{in_array($image->image, $variantImages) ? 'image-border':''}}" data-thumb="{{$image->image}}" data-variant="{{$variant->id}}">
+										            </div>
+										        </div>
+									    	</a>
+									        @endforeach
+									    </div>
+									    <button type="button" class="btn btn-info save_variation_image">Save Images</button>
+										</div>
 								      </div>
 								    </div>
 								  </div>
@@ -41,10 +66,7 @@
 		                    </div>  
 					</div>
 				</div>
-				<div class="card-footer">
-					<button type="button" class="btn btn-primary generate_combinations">Save</button>
-				</div>
-			</form>
+				
 		</div>
 		<div class="col-md-4">
 			@foreach($attributes as $attribute)

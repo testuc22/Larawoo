@@ -75,6 +75,7 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	 	Route::name('delete-product-image')->get('delete-product-image', [App\Http\Controllers\Back\ProductController::class,'deleteProductImage']);
 	 	Route::name('assign-product-tags')->post('assign-product-tags/{id}', [App\Http\Controllers\Back\ProductController::class,'assignTagsToProduct']);
 	 	Route::name('generate-product-combinations')->post('generate-product-combinations/{id}', [App\Http\Controllers\Back\ProductController::class,'generateProductCombinations']);
+	 	Route::name('update-variant-images')->post('update-variant-images', [App\Http\Controllers\Back\ProductController::class,'updateVariantImages']);
 
 	});
 });

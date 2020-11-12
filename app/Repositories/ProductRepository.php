@@ -151,7 +151,9 @@ class ProductRepository
 		$mergeArrays=self::getCombinations(array_values($tempArray));
 		$attributesLength=count($mergeArrays);
 		$product=Product::find($id);
-		$data=[];
+		$mergeArrays=$this->checkIfVariantExists($product,$mergeArrays);
+		return $mergeArrays;
+		/*$data=[];
 		for($i=1;$i<=$attributesLength;$i++) {
 		    $data[]=array(
 		    	'quantity'=>1,
@@ -161,7 +163,20 @@ class ProductRepository
 		$variants=$product->productVariants()->createMany($data);
 		$productImage=$product->productImages->first();
 		$this->saveCombinations($variants,$mergeArrays,$productImage);
-		return response()->json(['Image'=>$productImage,'variants'=>$variants]);
+		return response()->json(['Image'=>$productImage,'variants'=>$variants]);*/
+	}
+
+	public function checkIfVariantExists($product,$mergeArrays)
+	{
+	    // $productVariants=$product->productVariants->pluck('id')->toArray();
+	    $productVariants=$product->productVariants;
+	    $existingVariants=[];
+	    foreach ($productVariants as $productVariant) {
+	        $existingVariants[]=$productVariant->variantAttributes->pluck('id')->toArray();
+	    }
+	    // $temp= array_diff_assoc($existingVariants,$mergeArrays);
+	    dd($mergeArrays);
+	    return $temp;
 	}
 
 	public function saveCombinations($variants,$mergeArrays,$Image)
@@ -193,5 +208,27 @@ class ProductRepository
         return $res;
 	}
 
-	
+	public function updateVariantImages($request)
+	{
+	    $variantImages=$request->images;
+	    $imageIds=array_map(function($variantImage){
+	    	return $variantImage['image'];
+	    }, $variantImages);
+	   $variantId=$variantImages[0]['variant'];
+	   $findProductType=ProductAttribute::find($variantId);
+	   $productImages=ProductImage::where('imageable_id','=',$variantId)->where('imageable_type','=','App\Models\ProductAttribute')->pluck('image')->toArray();
+	   $newImages=array_diff($imageIds, $productImages);
+	   foreach ($productImages as $productImage) {
+	       if (!in_array($productImage,$imageIds)) {
+	       		ProductImage::where('image','=',$productImage)->where('imageable_id','=',$variantId)->delete();
+	       }
+	   }
+	   foreach ($newImages as $image) {
+	       	$productImage= new ProductImage;
+		    $productImage->image=$image;
+		    $productImage->imageable()->associate($findProductType);
+		    $productImage->save();
+	   }
+	   return response()->json(['message'=>'success'],200);
+	}
 }
