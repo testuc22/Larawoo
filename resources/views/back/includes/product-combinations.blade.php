@@ -7,14 +7,19 @@
 						<input type="text" name="product_combinations" id="product_combinations" class="form-control" placeholder="Create Combinations">
 					</div>
 					<div class="card-footer">
-							<button type="button" class="btn btn-primary generate_combinations">Save</button>
+							<button type="button" class="btn btn-warning generate_combinations">Save</button>
 					</div>
 					</form>
 					<div class="form-group">
 						<div id="success-msg" style="display: none">
-							{{-- @component('back.components.success')
-		                        Tags Attached To Product Successfully
-		                      @endcomponent --}}
+							@component('back.components.success')
+		                        Combinations Generated Successfully
+		                      @endcomponent
+						</div>
+						<div id="error-msg" style="display: none">
+							@component('back.components.error')
+		                        Combinations Already Exist
+		                      @endcomponent
 						</div>
 						{{-- <x-product-combinations :product="$product"/> --}}
 		                    <div id="accordion">
@@ -27,6 +32,9 @@
 								      <a class="card-link" data-toggle="collapse" href="#collapseOne_{{$variant->id}}">
 								        {{getProductVariantsNames($variant->variantAttributes)}}
 								      </a>
+								      <div class="del-comb-wrap">
+								      	<a href="javascript:;" class="del-comb-btn" data-variant="{{$variant->id}}"><i class="fas fa-times-circle fa-2x"></i></a>
+								      </div>
 								    </div>
 								    <div id="collapseOne_{{$variant->id}}" class="collapse " data-parent="#accordion">
 								      <div class="card-body">

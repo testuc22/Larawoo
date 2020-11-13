@@ -376,6 +376,10 @@ $(document).on('click', '.generate_combinations', function(event) {
             success:function(result){
                 //$("#success-msg").fadeIn('400').fadeOut('slow');
                 console.log(result)
+            },
+            error:function(error){
+                console.log(error)
+                $("#error-msg").fadeIn('400').fadeOut('slow');
             }
         });             
     }
@@ -427,6 +431,21 @@ $(document).on('click', '.save_variation_image', function(event) {
         }
     });
 
+});
+
+$(document).on('click', '.del-comb-btn', function(event) {
+    let variantId=$(this).data('variant');
+    let _this=$(this);
+    $.ajax({
+        url: '{{route('delete-product-variant')}}',
+        type: 'POST',
+        data: {variantId: variantId,'_token':'{{csrf_token()}}'},
+        success:function(result){
+            //$("#success-msg").fadeIn('400').fadeOut('slow');
+            _this.parents(".card").fadeOut('slow').remove();
+            console.log(result)
+        }
+    });
 });
 });
 </script>

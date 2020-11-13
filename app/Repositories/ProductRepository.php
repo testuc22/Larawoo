@@ -145,38 +145,45 @@ class ProductRepository
 		$tempArray=[];
 		foreach ($selectedAttributes as $key=>$value) {
 		    foreach ($value as $key2 => $value2) {
-		        $tempArray[$key2][$value2]=$value2;
+		        $tempArray[$key2][$value2]= (int)$value2;
 		    }
 		}
 		$mergeArrays=self::getCombinations(array_values($tempArray));
-		$attributesLength=count($mergeArrays);
 		$product=Product::find($id);
 		$mergeArrays=$this->checkIfVariantExists($product,$mergeArrays);
-		return $mergeArrays;
-		/*$data=[];
-		for($i=1;$i<=$attributesLength;$i++) {
-		    $data[]=array(
-		    	'quantity'=>1,
-		    	'product_id'=>$id
-		    );
+		// return $mergeArrays;
+		$attributesLength=count($mergeArrays);
+		if($attributesLength > 0){
+			$data=[];
+			for($i=1;$i<=$attributesLength;$i++) {
+			    $data[]=array(
+			    	'quantity'=>1,
+			    	'product_id'=>$id
+			    );
+			}
+			$variants=$product->productVariants()->createMany($data);
+			$productImage=$product->productImages->first();
+			$this->saveCombinations($variants,$mergeArrays,$productImage);
+			return response()->json(['Image'=>$productImage,'variants'=>$variants]);	 	
 		}
-		$variants=$product->productVariants()->createMany($data);
-		$productImage=$product->productImages->first();
-		$this->saveCombinations($variants,$mergeArrays,$productImage);
-		return response()->json(['Image'=>$productImage,'variants'=>$variants]);*/
+		else {
+			return response()->json(['error'=>'Variant Already Exists'],400);
+		} 
 	}
 
 	public function checkIfVariantExists($product,$mergeArrays)
 	{
-	    // $productVariants=$product->productVariants->pluck('id')->toArray();
 	    $productVariants=$product->productVariants;
 	    $existingVariants=[];
 	    foreach ($productVariants as $productVariant) {
 	        $existingVariants[]=$productVariant->variantAttributes->pluck('id')->toArray();
 	    }
-	    // $temp= array_diff_assoc($existingVariants,$mergeArrays);
-	    dd($mergeArrays);
-	    return $temp;
+	    /*$temp= array_udiff_assoc($existingVariants,$mergeArrays,function($aV,$mA){
+	    	return !array_diff_assoc($mA,$aV);
+	    });*/
+	    $temp= array_diff(array_map('serialize', $mergeArrays), array_map('serialize', $existingVariants));
+	    
+	    return (array) array_values(array_map('unserialize', $temp));
 	}
 
 	public function saveCombinations($variants,$mergeArrays,$Image)
@@ -230,5 +237,14 @@ class ProductRepository
 		    $productImage->save();
 	   }
 	   return response()->json(['message'=>'success'],200);
+	}
+
+	public function deleteProductVariant($request)
+	{
+	    $variantId=$request->variantId;
+	    $variant=ProductAttribute::find($variantId);
+	    $variant->delete();
+	    ProductImage::where('imageable_id','=',$variantId)->where('imageable_type','=','App\Models\ProductAttribute')->delete();
+	    return response()->json(['message'=>'Variant Deleted'],200);
 	}
 }

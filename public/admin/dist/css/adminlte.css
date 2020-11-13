@@ -579,6 +579,18 @@ pre code {
 .image-border {
   border: 2px solid aquamarine;
 }
+.del-comb-wrap a{
+  right: 8px;
+  position: absolute;
+  top: 10px;
+  color: #930c6b;
+}
+#combinations .card-link{
+  color: #ff7800;
+}
+.nav-tabs .nav-link{
+  color: #120636b5;
+}
 @media (min-width: 576px) {
   .container {
     max-width: 540px;

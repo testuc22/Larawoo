@@ -76,6 +76,7 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	 	Route::name('assign-product-tags')->post('assign-product-tags/{id}', [App\Http\Controllers\Back\ProductController::class,'assignTagsToProduct']);
 	 	Route::name('generate-product-combinations')->post('generate-product-combinations/{id}', [App\Http\Controllers\Back\ProductController::class,'generateProductCombinations']);
 	 	Route::name('update-variant-images')->post('update-variant-images', [App\Http\Controllers\Back\ProductController::class,'updateVariantImages']);
+	 	Route::name('delete-product-variant')->post('delete-product-variant', [App\Http\Controllers\Back\ProductController::class,'deleteProductVariant']);
 
 	});
 });
