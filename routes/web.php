@@ -27,6 +27,7 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	 	Route::name('createcategory')->post('createcategory', [App\Http\Controllers\Back\CategoryController::class,'createNewCategory']);
 	 	Route::name('editcategory')->get('editcategory/{id}', [App\Http\Controllers\Back\CategoryController::class,'getEditCategoryPage']);
 	 	Route::name('updatecategory')->put('updatecategory/{id}', [App\Http\Controllers\Back\CategoryController::class,'updateCategory']);
+	 	Route::name('deletecategory')->delete('deletecategory/{id}', [App\Http\Controllers\Back\CategoryController::class,'deleteCategory']);
 
 	 	/* Attribute Pages */
 

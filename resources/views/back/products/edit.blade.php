@@ -374,8 +374,57 @@ $(document).on('click', '.generate_combinations', function(event) {
             type: 'POST',
             data: {proComb: proComb,'_token':'{{csrf_token()}}'},
             success:function(result){
-                //$("#success-msg").fadeIn('400').fadeOut('slow');
+                $("#success-msg").fadeIn('400').fadeOut('slow');
                 console.log(result)
+                let variantHtml='';
+                result.variants.forEach( function(element, index) {
+                    let imagesHtml='';
+                    result.Images.forEach( function(element, index) {
+                        imagesHtml+=`<a href="javascript:;" class="variant_image" >
+                                        <div class="col-md-2 mb-3 variant-img">
+                                            <div class="product-image">
+                                                <img src="{{URL::asset('/product-images/')}}/${element.image}" height="50" width="70" class="${index==0 ? 'image-border' : ''}" data-thumb="${element.image}" data-variant="${element.id}">
+                                            </div>
+                                        </div>
+                                    </a>`;
+                    });
+                variantHtml+=`<div class="card">
+                                <div class="card-header">
+                                  <a class="card-link" data-toggle="collapse" href="#collapseOne_${element.id}">
+                                    ${element.variantNames}
+                                  </a>
+                                  <div class="del-comb-wrap">
+                                    <a href="javascript:;" class="del-comb-btn" data-variant="${element.id}"><i class="fas fa-times-circle fa-2x"></i></a>
+                                  </div>
+                                </div>
+                                <div id="collapseOne_${element.id}" class="collapse " data-parent="#accordion">
+                                  <div class="card-body">
+                                    <form method="post">
+                                        <div class="form-group">
+                                            <label>Quantity</label>
+                                            <input type="text" name="quantity" class="form-control" placeholder="Quantity" value="${element.quantity}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Price</label>
+                                            <input type="text" name="price" class="form-control" placeholder="Price" value="">
+                                        </div>
+                                            <button type="button" class="btn btn-warning save_variation">Save</button>
+                                    </form>
+                                    <div class="variant-images">
+                                        <h3>Images</h3>
+                                        <span>Select Images Of this Combination</span>
+                                        <span class="comb-images">1</span>/
+                                        <span class="product-total-images">${result.Images.length}</span>
+                                        <div class="row mt-5">
+                                        ${imagesHtml}
+                                    </div>
+                                    <button type="button" class="btn btn-info save_variation_image">Save Images</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>`;
+                    });
+                $("#accordion").append(variantHtml)                  
             },
             error:function(error){
                 console.log(error)

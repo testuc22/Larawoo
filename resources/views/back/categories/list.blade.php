@@ -96,7 +96,7 @@
 
                     "></i></a>
 
-                    <form action="{{-- {{route('deletecategory',$category->id)}} --}}" method="post" id="{{$category->id}}">
+                    <form action="{{route('deletecategory',$category->id)}}" method="post" id="{{$category->id}}">
 
                         {{@csrf_field()}}
 

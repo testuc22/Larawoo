@@ -591,6 +591,9 @@ pre code {
 .nav-tabs .nav-link{
   color: #120636b5;
 }
+#example1 .fa-edit{
+  color: #1ac52d;
+}
 @media (min-width: 576px) {
   .container {
     max-width: 540px;

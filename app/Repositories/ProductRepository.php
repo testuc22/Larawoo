@@ -164,7 +164,10 @@ class ProductRepository
 			$variants=$product->productVariants()->createMany($data);
 			$productImage=$product->productImages->first();
 			$this->saveCombinations($variants,$mergeArrays,$productImage);
-			return response()->json(['Image'=>$productImage,'variants'=>$variants]);	 	
+			$variants->map(function($variant){
+				$variant->variantNames=getProductVariantsNames($variant->variantAttributes);
+			});
+			return response()->json(['Images'=>$product->productImages,'variants'=>$variants]);	 	
 		}
 		else {
 			return response()->json(['error'=>'Variant Already Exists'],400);

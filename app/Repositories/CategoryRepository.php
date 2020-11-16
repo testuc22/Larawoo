@@ -122,4 +122,12 @@ class CategoryRepository
 	    $request->session()->flash('success','Category Updated Successfully');
 	    return redirect()->route('listcategories');
 	}
+
+	public function deleteCategory($request,$id)
+	{
+	    $category=$this->getOneCategory($id);
+	    $category->delete();
+	    $request->session()->flash('success','Category Deleted Successfully');
+	    return redirect()->route('listcategories');
+	}
 }

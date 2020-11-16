@@ -9,5 +9,5 @@ class ProductAttributeCombination extends Model
 {
     use HasFactory;
 
-    protected $fillable=['attribute_id','product_attribute_id'];
+    protected $fillable=['attribute_value_id','product_attribute_id'];
 }

@@ -48,4 +48,10 @@ class CategoryController extends Controller
         $result=$this->categoryRepository->updateCategory($request,$id);
         return $result;
     }
+
+    public function deleteCategory(Request $request,$id)
+    {
+        $result=$this->categoryRepository->deleteCategory($request,$id);
+        return $result;
+    }
 }
