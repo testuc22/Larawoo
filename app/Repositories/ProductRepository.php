@@ -250,4 +250,21 @@ class ProductRepository
 	    ProductImage::where('imageable_id','=',$variantId)->where('imageable_type','=','App\Models\ProductAttribute')->delete();
 	    return response()->json(['message'=>'Variant Deleted'],200);
 	}
+
+	public function updateProductVariant($request)
+	{
+	    $data=$request->data;
+	    $variant=ProductAttribute::find($data['variant']);
+	    $variant->price=$data['price'];
+	    $variant->quantity=$data['quantity'];
+	    $variant->save();
+	    return response()->json(['message'=>'Variant Updated'],200);
+	}
+
+	public function refreshProductVariantImages($id)
+	{
+	    $product=Product::find($id);
+	    $productImages=$product->productImages;
+	    return $productImages;
+	}
 }

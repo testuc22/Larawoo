@@ -130,4 +130,12 @@ class CategoryRepository
 	    $request->session()->flash('success','Category Deleted Successfully');
 	    return redirect()->route('listcategories');
 	}
+
+	public function showHideCategoryInMenu($request)
+	{
+	    $category=$this->getOneCategory($request->category);
+	    $category->showInMenu=$request->value;
+	    $category->save();
+	    return response()->json(['message'=>$request->value==1 ? 'Category Will Appear In Main Menu' : 'Category Will not Appear In Main Menu'],200);
+	}
 }

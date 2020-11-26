@@ -108,4 +108,16 @@ class ProductController extends Controller
         $result=$this->productRepository->deleteProductVariant($request);
         return $result;
     }
+
+    public function updateProductVariant(Request $request)
+    {
+     	$result=$this->productRepository->updateProductVariant($request);
+        return $result;   
+    }
+
+    public function refreshProductVariantImages($id)
+    {
+        $result=$this->productRepository->refreshProductVariantImages($id);
+        return $result;
+    }
 }

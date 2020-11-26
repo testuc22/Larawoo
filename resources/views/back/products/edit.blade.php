@@ -475,11 +475,29 @@ $(document).on('click', '.save_variation_image', function(event) {
         type: 'POST',
         data: {images: imagesData,'_token':'{{csrf_token()}}'},
         success:function(result){
-            //$("#success-msg").fadeIn('400').fadeOut('slow');
+            $("#success-msg").fadeIn('400').fadeOut('slow');
             console.log(result)
         }
     });
 
+});
+
+$(document).on('click', '.save_variation', function(event) {
+    let form=$(this).parents('.variant_form');
+    let data={
+        quantity:form.find('.quantity').val(),
+        variant:form.find('.variant-id-class').val(),
+        price:form.find('.price').val()
+    }
+    $.ajax({
+        url: '{{route('update-variant-details')}}',
+        type: 'POST',
+        data: {data,'_token':'{{csrf_token()}}'},
+        success:function(result){
+            $("#success-msg").fadeIn('400').fadeOut('slow');
+            console.log(result)
+        }
+    });
 });
 
 $(document).on('click', '.del-comb-btn', function(event) {
@@ -490,12 +508,29 @@ $(document).on('click', '.del-comb-btn', function(event) {
         type: 'POST',
         data: {variantId: variantId,'_token':'{{csrf_token()}}'},
         success:function(result){
-            //$("#success-msg").fadeIn('400').fadeOut('slow');
             _this.parents(".card").fadeOut('slow').remove();
             console.log(result)
         }
     });
 });
+let url_combina=window.location.href.split('=');
+if (url_combina[1]=='combinations') {
+    $("#refresh-combinations").addClass('active').parents('li').siblings().find('a').removeClass('active')
+    $("#combinations").addClass('active').removeClass('fade').siblings().removeClass('active').addClass('fade')
+}
+/*$(document).on('click', '#refresh-combinations', function(event) {
+    event.preventDefault();
+    window.location.reload()
+    $(this).addClass('active').siblings().removeClass('active')
+    $("#combinations").addClass('active').siblings().removeClass('active')
+    /*$.ajax({
+        {{-- url: '{{route('update-product-combinations-images',$product->id)}}', --}}
+        type: 'GET',
+        success:function(result){
+            console.log(result)
+        }
+    });*
+});*/
 });
 </script>
 @endsection

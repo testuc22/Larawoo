@@ -28,6 +28,7 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	 	Route::name('editcategory')->get('editcategory/{id}', [App\Http\Controllers\Back\CategoryController::class,'getEditCategoryPage']);
 	 	Route::name('updatecategory')->put('updatecategory/{id}', [App\Http\Controllers\Back\CategoryController::class,'updateCategory']);
 	 	Route::name('deletecategory')->delete('deletecategory/{id}', [App\Http\Controllers\Back\CategoryController::class,'deleteCategory']);
+	 	Route::name('show-category-in-menu')->put('show-category-in-menu', [App\Http\Controllers\Back\CategoryController::class,'showHideCategoryInMenu']);
 
 	 	/* Attribute Pages */
 
@@ -78,6 +79,12 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	 	Route::name('generate-product-combinations')->post('generate-product-combinations/{id}', [App\Http\Controllers\Back\ProductController::class,'generateProductCombinations']);
 	 	Route::name('update-variant-images')->post('update-variant-images', [App\Http\Controllers\Back\ProductController::class,'updateVariantImages']);
 	 	Route::name('delete-product-variant')->post('delete-product-variant', [App\Http\Controllers\Back\ProductController::class,'deleteProductVariant']);
+	 	Route::name('update-variant-details')->post('update-variant-details', [App\Http\Controllers\Back\ProductController::class,'updateProductVariant']);
+	 	Route::name('update-product-combinations-images')->get('update-product-combinations-images/{id}', [App\Http\Controllers\Back\ProductController::class,'refreshProductVariantImages']);
 
 	});
+});
+
+Route::namespace('Front')->group(function(){
+	Route::name('home')->get('/', [App\Http\Controllers\Front\HomeController::class,'getHomePage']);
 });

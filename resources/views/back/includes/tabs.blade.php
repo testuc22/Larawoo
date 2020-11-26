@@ -9,6 +9,6 @@
     <a class="nav-link" data-toggle="tab" href="#producttags">Product Tags</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" data-toggle="tab" href="#combinations">Combinations</a>
+    <a class="nav-link"  href="{{route('editproduct',[$product->id,'tab'=>'combinations'])}}" id="refresh-combinations">Combinations</a>
   </li>
 </ul>

@@ -62,7 +62,7 @@
 
                   <th>Category</th>
                   <th>Edit/Delete</th>
-
+                  <th>Show In Menu</th>
                 </tr>
 
                 </thead>
@@ -103,7 +103,12 @@
                         {{@method_field('DELETE')}}
 
                     </form></td>
-
+                    <td>
+                      <select class="custom-select show_category_in_menu" data-category="{{$category->id}}">
+                        <option value="1" {{$category->showInMenu==1 ? 'selected' :'' }}>Show</option>
+                        <option value="0" {{$category->showInMenu==0 ? 'selected' :'' }}>Hide</option>
+                      </select>
+                    </td>
                 </tr>
 
                 @endforeach
@@ -116,7 +121,7 @@
 
                   <th>Category</th>
                   <th>Edit/Delete</th>
-
+                  <th>Show In Menu</th>
                 </tr>
 
                 </tfoot>
@@ -136,4 +141,21 @@
 </section>
 
 @endsection
-
+@section('script')
+<script type="text/javascript">
+  jQuery(document).ready(function($) {
+    $(document).on('change', '.show_category_in_menu', function(event) {
+      let category=$(this).data('category');
+      let value=$(this).children('option:selected').val()
+      $.ajax({
+        url: '{{route('show-category-in-menu')}}',
+        type: 'PUT',
+        data:{category:category,'_token':'{{csrf_token()}}',value:value},
+        success:function(result){
+            show_success(result.message)
+        }
+    });
+    });
+  });
+</script>
+@endsection

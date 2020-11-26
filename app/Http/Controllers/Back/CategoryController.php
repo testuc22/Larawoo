@@ -54,4 +54,10 @@ class CategoryController extends Controller
         $result=$this->categoryRepository->deleteCategory($request,$id);
         return $result;
     }
+
+    public function showHideCategoryInMenu(Request $request)
+    {
+        $result=$this->categoryRepository->showHideCategoryInMenu($request);
+        return $result;
+    }
 }

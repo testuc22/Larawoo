@@ -38,14 +38,15 @@
 								    </div>
 								    <div id="collapseOne_{{$variant->id}}" class="collapse " data-parent="#accordion">
 								      <div class="card-body">
-								      	<form method="post">
+								      	<form method="post" class="variant_form">
+								      		<input type="hidden" name="variant" value="{{$variant->id}}" class="variant-id-class">
 									        <div class="form-group">
 									        	<label>Quantity</label>
-									        	<input type="text" name="quantity" class="form-control" placeholder="Quantity" value="{{$variant->quantity}}">
+									        	<input type="text" name="quantity" class="form-control quantity" placeholder="Quantity" value="{{$variant->quantity}}">
 									        </div>
 									        <div class="form-group">
 									        	<label>Price</label>
-									        	<input type="text" name="price" class="form-control" placeholder="Price" value="{{$variant->price}}">
+									        	<input type="text" name="price" class="form-control price" placeholder="Price" value="{{$variant->price}}">
 									        </div>
 												<button type="button" class="btn btn-warning save_variation">Save</button>
 										</form>
