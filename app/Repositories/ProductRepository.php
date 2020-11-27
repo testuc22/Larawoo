@@ -10,13 +10,19 @@ use App\Models\{
 	ProductImage,
 	ProductTag,
 	Tag,
+	Category,
 	ProductAttribute,
 	ProductAttributeCombination
 };
+use App\Repositories\CategoryRepository;
 use Str;
 use Auth,File;
 class ProductRepository
 {
+	public function __construct(CategoryRepository $categoryRepository)
+	{
+	    $this->categoryRepository=$categoryRepository;
+	}
 	
 	public function getAllProducts()
 	{
@@ -266,5 +272,53 @@ class ProductRepository
 	    $product=Product::find($id);
 	    $productImages=$product->productImages;
 	    return $productImages;
+	}
+
+	public function getProductList($slug)
+	{
+	 	$category=Category::where('slug','=',$slug)->first('id')->toArray();
+	 	$catList=array();
+	 	$attributeIds=array();
+	 	$this->categoryRepository->getChildByParentId($category['id'],$catList[$category['id']]['childs']);
+	 	$category=array_merge($category,array_column($catList[$category['id']]['childs'],'id'));
+	 	$productIds=ProductCategory::whereIn('category_id',$category)->get('product_id');
+	 	$products=Product::findMany($productIds);
+	 	$products->map(function($product) use($attributeIds){
+	 	
+	 		if ($product->productVariants()->exists()) {
+	 			$product->productVariants->map(function($variant) use($product,$attributeIds){
+	 				
+	 				if ($product->discount!=NULL) {
+			 			$discountPercentage=(float)($product->discount/100);
+			 			$discountPrice=$discountPercentage * $variant->price;
+			 			$variant->discountPrice=(float)($variant->price - $discountPrice); 
+			 		}
+			 		else {
+		 				$variant->discountPrice=$variant->price;
+			 		}
+	 				$variant->variantName=getProductVariantsNames($variant->variantAttributes);
+	 				// dd($variant->variantAttributes);
+	 				$variant->variantAttributes->map(function($attribute) use($attributeIds){
+		 				if (!in_array($attribute->id, $attributeIds)) {
+		 					array_push($attributeIds, $attribute->id);
+		 				}	 					
+	 				});
+	 				$variant->variantImage=getProductVariantImages($variant);
+	 			});
+	 		}
+	 		else {
+	 			if ($product->discount!=NULL) {
+		 			$discountPercentage=(float)($product->discount/100);
+		 			$discountPrice=$discountPercentage * $product->price;
+		 			$product->discountPrice=(float)($product->price - $discountPrice); 
+		 		}
+		 		else {
+	 				$product->discountPrice=$product->price;
+		 		}
+	 			$product->productImage=$product->productImages->first();
+	 		}
+
+	 	});
+	 	return $products;   
 	}
 }

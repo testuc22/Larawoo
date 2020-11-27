@@ -22,6 +22,18 @@ class CategoryRepository
 	    return Category::where('parentId','=','0')->get();
 	}
 
+	public function getMainMenuCategories()
+	{
+	    $categories=Category::where('showInMenu','=','1')->get();
+    	$catList=[];
+	    foreach ($categories as $category) {
+	    	$catList[$category->id]=array('id'=>$category->id,'title'=>$category->title,'slug'=>$category->slug,'childs'=>array());
+	        $childCategory=Category::where('parentId','=',$category->id)->get();
+	        $catList[$category->id]['childs']=$childCategory->toArray();
+	    }
+	    return $catList;
+	}
+
 	/*public function getCategoriesTree()
 	{   
 		$catList=array();
@@ -40,10 +52,10 @@ class CategoryRepository
 	    return $categoryList;
 	}*/
 
-	public function getCategoriesTree()
+	public function getCategoriesTree($mainMenu='')
 	{
 		$catList=array();
-		$allCategories=$this->getAllCategories();
+		$allCategories=$mainMenu=='' ? $this->getAllCategories() : $this->getOneCategory($mainMenu);
 		foreach($allCategories as $category){
 			$catList[$category->id]=array('id'=>$category->id,'title'=>$category->title,'parent'=>$category->parentId);
 			if ($category->parentId!=0) {
@@ -59,15 +71,16 @@ class CategoryRepository
 	public function getChildByParentId($id,&$childs){
 
         $categories=Category::where('parentId','=',$id)->get();
-        
+        // dd($categories);
         foreach ($categories as $category) {
+        	$childs[]=array('id'=>$category->id);
         	if(!isset($childs[$category->id]['childs'])){
-        		 $childs[$category->id]=$category->toArray();
-                 $childs[$category->id]['childs']=array();
+        		 // $childs[$category->id]=$category->toArray();
+                 // $childs[$category->id]['childs']=array();
         	}
-           $this->getChildByParentId($category->id,$childs[$category->id]['childs']);
+           $this->getChildByParentId($category->id,$childs);
         }
-       
+       // dump($childs);
 	}
 
 	public function getParentCategories($id,&$categoryList)

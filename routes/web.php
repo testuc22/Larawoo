@@ -85,6 +85,9 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	});
 });
 
+/*-----------Front End Routes------------*/
+
 Route::namespace('Front')->group(function(){
 	Route::name('home')->get('/', [App\Http\Controllers\Front\HomeController::class,'getHomePage']);
+	Route::name('products')->get('products/{slug}', [App\Http\Controllers\Front\ProductController::class,'getProductList']);
 });
