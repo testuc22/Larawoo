@@ -15,8 +15,14 @@ class ProductController extends Controller
 
     public function getProductList($slug)
     {
-    	$products=$this->productRepository->getProductList($slug);
-    	// return $products;
-        return view('front/productlist')->with(['products'=>$products]);
+    	$result=$this->productRepository->getProductList($slug);
+    	// return $result;
+        return view('front/productlist')->with(['products'=>$result['products'],'attributes'=>$result['attributes'],'categories'=>$result['categories']]);
+    }
+
+    public function filterProductList(Request $request)
+    {
+        $result=$this->productRepository->filterProductList($request);
+        return $result;
     }
 }

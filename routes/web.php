@@ -90,4 +90,5 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 Route::namespace('Front')->group(function(){
 	Route::name('home')->get('/', [App\Http\Controllers\Front\HomeController::class,'getHomePage']);
 	Route::name('products')->get('products/{slug}', [App\Http\Controllers\Front\ProductController::class,'getProductList']);
+	Route::name('filter-products')->post('filter-products', [App\Http\Controllers\Front\ProductController::class,'filterProductList']);
 });

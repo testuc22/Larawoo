@@ -10,7 +10,7 @@ use App\Models\{
 	ProductImage,
 	ProductTag,
 	Tag,
-	Category,
+	Category,Attribute,
 	ProductAttribute,
 	ProductAttributeCombination
 };
@@ -19,6 +19,8 @@ use Str;
 use Auth,File;
 class ProductRepository
 {
+	public static $variantAttributes=[];
+
 	public function __construct(CategoryRepository $categoryRepository)
 	{
 	    $this->categoryRepository=$categoryRepository;
@@ -298,11 +300,15 @@ class ProductRepository
 			 		}
 	 				$variant->variantName=getProductVariantsNames($variant->variantAttributes);
 	 				// dd($variant->variantAttributes);
-	 				$variant->variantAttributes->map(function($attribute) use($attributeIds){
-		 				if (!in_array($attribute->id, $attributeIds)) {
-		 					array_push($attributeIds, $attribute->id);
+	 				$variant->variantAttributes->map(function($attribute) use($attributeIds,$product){
+	 					// dump($attribute->attribute->name);
+		 				if (!in_array($attribute->attribute->id, self::$variantAttributes)) {
+		 					$attributeIds[]=$attribute->attribute->id;
+		 					self::$variantAttributes[]=$attribute->attribute->id;
+		 					// array_push($attributeIds, $attribute->attribute->id);
 		 				}	 					
 	 				});
+
 	 				$variant->variantImage=getProductVariantImages($variant);
 	 			});
 	 		}
@@ -319,6 +325,29 @@ class ProductRepository
 	 		}
 
 	 	});
-	 	return $products;   
+	 	$attributes=Attribute::whereIn('id',self::$variantAttributes)->with('attributeValues')->get();
+
+	 	return [
+	 		'attributes'=>$attributes,
+	 		'products'=>$products,
+	 		'categories'=>$category
+	 	];   
+	}
+
+	public function filterProductList($request)
+	{
+	    $categories=$request->categories;
+	    $filterBy=$request->filterValues;
+	    $productIds=ProductCategory::whereIn('category_id',$categories)->get('product_id');
+	    $brands=isset($filterBy['brands']) && count($filterBy['brands']) > 0 ? $filterBy['brands'] : null;
+	    $attributes=count($filterBy['attributes']) > 0 ? $filterBy->attributes : null;
+	    $price=$filterBy->price!=false ? $filterBy->price : null;
+	    $discount=count($filterBy->discount) > 0 ? $filterBy->discount : null;
+	    $products=Product::when($brands,function($query,$brands){
+	    	return $query->whereHas('productBrand',function($query) use ($brands){
+	    		$query->whereIn('brand_id',$brands);
+	    	});
+	    })->whereIn('id',$productIds)->get();
+	    return $products;
 	}
 }

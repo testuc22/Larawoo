@@ -129,43 +129,19 @@
 					<div class="side-bar p-sm-4 p-3">
 						<x-list-brand/>
 						<!-- ram -->
+						@foreach($attributes as $attribute)
 						<div class="left-side border-bottom py-2">
-							<h3 class="agileits-sear-head mb-3">Ram</h3>
+							<h3 class="agileits-sear-head mb-3">{{$attribute->name}}</h3>
 							<ul>
+								@foreach($attribute->attributeValues as $attributeValue)
 								<li>
-									<input type="checkbox" class="checked">
-									<span class="span">Less than 512 MB</span>
+									<input type="checkbox" class="checked product-attribute" data-attributevalue="{{$attributeValue->id}}">
+									<span class="span">{{$attributeValue->value}}</span>
 								</li>
-								<li>
-									<input type="checkbox" class="checked">
-									<span class="span">512 MB - 1 GB</span>
-								</li>
-								<li>
-									<input type="checkbox" class="checked">
-									<span class="span">1 GB</span>
-								</li>
-								<li>
-									<input type="checkbox" class="checked">
-									<span class="span">2 GB</span>
-								</li>
-								<li>
-									<input type="checkbox" class="checked">
-									<span class="span">3 GB</span>
-								</li>
-								<li>
-									<input type="checkbox" class="checked">
-									<span class="span">5 GB</span>
-								</li>
-								<li>
-									<input type="checkbox" class="checked">
-									<span class="span">6 GB</span>
-								</li>
-								<li>
-									<input type="checkbox" class="checked">
-									<span class="span">6 GB & Above</span>
-								</li>
+								@endforeach
 							</ul>
 						</div>
+						@endforeach
 						<!-- //ram -->
 						<!-- price -->
 						<div class="range border-bottom py-2">
@@ -173,22 +149,22 @@
 							<div class="w3l-range">
 								<ul>
 									<li>
-										<a href="#">Under $1,000</a>
+										<a href="javascript:;" data-price="999" class="product-price">Under $1,000</a>
 									</li>
 									<li class="my-1">
-										<a href="#">$1,000 - $5,000</a>
+										<a href="javascript:;" data-price="1000-5000" class="product-price">$1,000 - $5,000</a>
 									</li>
 									<li>
-										<a href="#">$5,000 - $10,000</a>
+										<a href="javascript:;" data-price="5000-10000" class="product-price">$5,000 - $10,000</a>
 									</li>
 									<li class="my-1">
-										<a href="#">$10,000 - $20,000</a>
+										<a href="javascript:;" data-price="10000-20000" class="product-price">$10,000 - $20,000</a>
 									</li>
 									<li>
-										<a href="#">$20,000 $30,000</a>
+										<a href="javascript:;" data-price="20000-30000" class="product-price">$20,000 $30,000</a>
 									</li>
 									<li class="mt-1">
-										<a href="#">Over $30,000</a>
+										<a href="javascript:;" data-price="30000" class="product-price">Over $30,000</a>
 									</li>
 								</ul>
 							</div>
@@ -199,27 +175,27 @@
 							<h3 class="agileits-sear-head mb-3">Discount</h3>
 							<ul>
 								<li>
-									<input type="checkbox" class="checked">
+									<input type="checkbox" class="checked product-discount" data-discount="5-9">
 									<span class="span">5% or More</span>
 								</li>
 								<li>
-									<input type="checkbox" class="checked">
+									<input type="checkbox" class="checked product-discount" data-discount="10-19">
 									<span class="span">10% or More</span>
 								</li>
 								<li>
-									<input type="checkbox" class="checked">
+									<input type="checkbox" class="checked product-discount" data-discount="20-29">
 									<span class="span">20% or More</span>
 								</li>
 								<li>
-									<input type="checkbox" class="checked">
+									<input type="checkbox" class="checked product-discount" data-discount="30-49">
 									<span class="span">30% or More</span>
 								</li>
 								<li>
-									<input type="checkbox" class="checked">
+									<input type="checkbox" class="checked product-discount" data-discount="50-59">
 									<span class="span">50% or More</span>
 								</li>
 								<li>
-									<input type="checkbox" class="checked">
+									<input type="checkbox" class="checked product-discount" data-discount="60">
 									<span class="span">60% or More</span>
 								</li>
 							</ul>
@@ -285,4 +261,96 @@
 			</div>
 		</div>
 	</div>
+@endsection
+@section('scripts')
+<script>
+	jQuery(document).ready(function($) {
+		var productList={
+			el:{
+				wrapper:false,
+				productSection:false,
+				productBrand:false,
+				productAttribute:false,
+				productPrice:false,
+				productDiscount:false,
+			},
+			filterValues:{
+				brands:[],
+				attributes:[],
+				price:false,
+				discount:[]
+			},
+			categories:[],
+			init:function() {
+				this.initVars();
+			},
+			initVars:function() {
+				this.el.wrapper=$(".wrapper");
+				this.el.productSection=$(".product-sec1");
+				this.el.productBrand=$(".product-brand");
+				this.el.productAttribute=$(".product-attribute");
+				this.el.productPrice=$(".product-price");
+				this.el.productDiscount=$(".product-discount");
+				this.categories=@json($categories);
+				this.initEvents();
+				console.log(this.categories)
+			},
+			initEvents:function() {
+				this.el.productBrand.on("click",(ev)=>{this.toggleBrand(ev)})
+				this.el.productAttribute.on("click",(ev)=>{this.toggleAttribute(ev)})
+				this.el.productPrice.on("click",(ev)=>{this.togglePrice(ev)})
+				this.el.productDiscount.on("click",(ev)=>{this.toggleDiscount(ev)})
+			},
+			toggleBrand:function(event) {
+				let target=$(event.target)
+				let data=target.data('brand');
+				let type='brands';
+				this.filterObjectValue(target,data,type)
+			},
+			toggleAttribute:function(event) {
+				let target=$(event.target)
+				let data=target.data('attributevalue');
+				let type='attributes';
+				this.filterObjectValue(target,data,type)
+			},
+			togglePrice:function(event) {
+				let target=$(event.target)
+				let data=target.data('price');
+				this.filterValues.price=data;
+				this.filterProducts();
+			},
+			toggleDiscount:function(event) {
+				let target=$(event.target)
+				let data=target.data('discount');
+				let type='discount';
+				this.filterObjectValue(target,data,type)
+			},
+			filterObjectValue:function(target,data,type) {
+				if (target.is(':checked')) {
+					this.filterValues[type].push(data)
+					this.filterProducts();
+				}
+				else {
+					let index=this.filterValues[type].findIndex(brand=>brand==data);
+					this.filterValues[type].splice(index, 1);
+					this.filterProducts();	
+				}
+				console.log(this.filterValues)
+			},
+			filterProducts:function() {
+				let categories=this.categories;
+				let filterValues=this.filterValues;
+				$.ajax({
+			        url: '{{route('filter-products')}}',
+			        type: 'POST',
+			        data: {categories:categories,filterValues:filterValues,'_token':'{{csrf_token()}}'},
+			        success:function(result){
+			            console.log(result)
+			        }
+			    });
+			}
+		}
+		productList.init();
+	});
+</script>
 @endsection
