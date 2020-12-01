@@ -16,7 +16,7 @@ use App\Models\{
 };
 use App\Repositories\CategoryRepository;
 use Str;
-use Auth,File;
+use Auth,File,DB;
 class ProductRepository
 {
 	public static $variantAttributes=[];
@@ -284,7 +284,7 @@ class ProductRepository
 	 	$this->categoryRepository->getChildByParentId($category['id'],$catList[$category['id']]['childs']);
 	 	$category=array_merge($category,array_column($catList[$category['id']]['childs'],'id'));
 	 	$productIds=ProductCategory::whereIn('category_id',$category)->get('product_id');
-	 	$products=Product::findMany($productIds);
+	 	$products=Product::whereIn('id',$productIds)->paginate(1);//findMany($productIds);
 	 	$products->map(function($product) use($attributeIds){
 	 	
 	 		if ($product->productVariants()->exists()) {
@@ -340,14 +340,68 @@ class ProductRepository
 	    $filterBy=$request->filterValues;
 	    $productIds=ProductCategory::whereIn('category_id',$categories)->get('product_id');
 	    $brands=isset($filterBy['brands']) && count($filterBy['brands']) > 0 ? $filterBy['brands'] : null;
-	    $attributes=count($filterBy['attributes']) > 0 ? $filterBy->attributes : null;
-	    $price=$filterBy->price!=false ? $filterBy->price : null;
-	    $discount=count($filterBy->discount) > 0 ? $filterBy->discount : null;
+	    $attributes=isset($filterBy['attributes']) && count($filterBy['attributes']) > 0 ? $filterBy['attributes'] : null;
+	    $price=$filterBy['price']!='false' ? explode('-',$filterBy['price']) : null;
+	    $discount=isset($filterBy['discount']) && count($filterBy['discount']) > 0 ? end($filterBy['discount']) : null;
+	    DB::enableQueryLog();
 	    $products=Product::when($brands,function($query,$brands){
 	    	return $query->whereHas('productBrand',function($query) use ($brands){
 	    		$query->whereIn('brand_id',$brands);
 	    	});
-	    })->whereIn('id',$productIds)->get();
+	    })->when($price,function($query,$price){
+	    	return $query->whereBetween('price',[...$price]);
+	    })->when($discount,function($query,$discount){
+	    	return $query->where('discount','>=',$discount);
+	    })
+	    /*->when($attributes,function($query,$attributes){
+	    	return $query->whereHas('productVariants',function($query) use ($attributes){
+	    		return $query->with(['variantAttributes'=>function($query2) use ($attributes){
+	    			return $query2->whereIn('attribute_value_id',$attributes);
+	    		}]);
+	    	});
+	    })*/
+	    ->whereIn('id',$productIds)->get();
+	    $pIds=$products->pluck('id')->toArray();
+	    $productsWithAttributes=ProductAttribute::when($attributes,function($query,$attributes){
+		    return $query->whereHas('variantAttributes',function($query) use ($attributes){
+		    	return $query->whereIn('attribute_value_id',$attributes);
+		    });	    	
+	    })->whereIn('product_id',$pIds)->get();
+	    $products->map(function($product) use ($productsWithAttributes,$discount,$price){
+	    	if ($product->productVariants()->exists()) {
+	    		$product->variants=$productsWithAttributes->filter(function($productAttribute) use ($product,$discount,$price){
+	    			if ($productAttribute->product_id==$product->id) {
+	    				$productAttribute->variantName=getProductVariantsNames($productAttribute->variantAttributes);
+	    				if ($discount!=null) {
+	    					$discountPercentage=(float)($product->discount/100);
+				 			$discountPrice=$discountPercentage * $productAttribute->price;
+				 			$productAttribute->discountPrice=(float)($productAttribute->price - $discountPrice);
+	    				}
+	    				else {
+	    					$productAttribute->discountPrice=$productAttribute->price;
+	    				}
+	    				$productAttribute->variantImage=asset('/product-images/'.getProductVariantImages($productAttribute)[0]);
+	    				return true;
+	    			}
+	    		});
+	    		if (is_array($price)) {
+	    			$product->variants=$productsWithAttributes->whereBetween('price',[...$price]);			
+				}
+	    	}
+	    	else {
+	 			if ($discount!=null) {
+		 			$discountPercentage=(float)($product->discount/100);
+		 			$discountPrice=$discountPercentage * $product->price;
+		 			$product->discountPrice=(float)($product->price - $discountPrice); 
+		 		}
+		 		else {
+	 				$product->discountPrice=$product->price;
+		 		}
+	 			$product->productImage=asset('/product-images/'.$product->productImages->first('image'));
+	 		}
+	    });
+	    // dd(DB::getQueryLog());
+	    // $result=$products->merge($productsWithAttributes);
 	    return $products;
 	}
 }

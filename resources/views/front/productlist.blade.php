@@ -149,7 +149,7 @@
 							<div class="w3l-range">
 								<ul>
 									<li>
-										<a href="javascript:;" data-price="999" class="product-price">Under $1,000</a>
+										<a href="javascript:;" data-price="1-999" class="product-price">Under $1,000</a>
 									</li>
 									<li class="my-1">
 										<a href="javascript:;" data-price="1000-5000" class="product-price">$1,000 - $5,000</a>
@@ -164,7 +164,7 @@
 										<a href="javascript:;" data-price="20000-30000" class="product-price">$20,000 $30,000</a>
 									</li>
 									<li class="mt-1">
-										<a href="javascript:;" data-price="30000" class="product-price">Over $30,000</a>
+										<a href="javascript:;" data-price="30000-500000" class="product-price">Over $30,000</a>
 									</li>
 								</ul>
 							</div>
@@ -175,23 +175,23 @@
 							<h3 class="agileits-sear-head mb-3">Discount</h3>
 							<ul>
 								<li>
-									<input type="checkbox" class="checked product-discount" data-discount="5-9">
+									<input type="checkbox" class="checked product-discount" data-discount="5">
 									<span class="span">5% or More</span>
 								</li>
 								<li>
-									<input type="checkbox" class="checked product-discount" data-discount="10-19">
+									<input type="checkbox" class="checked product-discount" data-discount="10">
 									<span class="span">10% or More</span>
 								</li>
 								<li>
-									<input type="checkbox" class="checked product-discount" data-discount="20-29">
+									<input type="checkbox" class="checked product-discount" data-discount="20">
 									<span class="span">20% or More</span>
 								</li>
 								<li>
-									<input type="checkbox" class="checked product-discount" data-discount="30-49">
+									<input type="checkbox" class="checked product-discount" data-discount="30">
 									<span class="span">30% or More</span>
 								</li>
 								<li>
-									<input type="checkbox" class="checked product-discount" data-discount="50-59">
+									<input type="checkbox" class="checked product-discount" data-discount="50">
 									<span class="span">50% or More</span>
 								</li>
 								<li>
@@ -317,6 +317,9 @@
 				let target=$(event.target)
 				let data=target.data('price');
 				this.filterValues.price=data;
+				const url = new URL(window.location);
+				url.searchParams.set('price', data);
+				window.history.replaceState({}, '', url);
 				this.filterProducts();
 			},
 			toggleDiscount:function(event) {
@@ -326,13 +329,18 @@
 				this.filterObjectValue(target,data,type)
 			},
 			filterObjectValue:function(target,data,type) {
+				const url = new URL(window.location);
 				if (target.is(':checked')) {
 					this.filterValues[type].push(data)
+					url.searchParams.set(type, this.filterValues[type].join(","));
+					window.history.replaceState({}, '', url);
 					this.filterProducts();
 				}
 				else {
 					let index=this.filterValues[type].findIndex(brand=>brand==data);
 					this.filterValues[type].splice(index, 1);
+					url.searchParams.set(type, this.filterValues[type].join(","));
+					window.history.replaceState({}, '', url);
 					this.filterProducts();	
 				}
 				console.log(this.filterValues)
@@ -346,6 +354,49 @@
 			        data: {categories:categories,filterValues:filterValues,'_token':'{{csrf_token()}}'},
 			        success:function(result){
 			            console.log(result)
+			            let productHtml='';
+			            result.forEach( function(element, index) {
+			            	if (element.hasOwnProperty('variants')) {
+			            		let variants=element.variants;
+			            		for (variant in variants) {
+					            	productHtml+=`<div class="col-md-4 product-men">
+											<div class="men-pro-item simpleCart_shelfItem">
+												<div class="men-thumb-item text-center">
+													<img src="${variants[variant].variantImage}" alt="" height="150">
+													<div class="men-cart-pro">
+														<div class="inner-men-cart-pro">
+															<a href="single.html" class="link-product-add-cart">Quick View</a>
+														</div>
+													</div>
+												</div>
+												<div class="item-info-product text-center border-top mt-4">
+													<h4 class="pt-1">
+														<a href="single.html">${element.title}${variants[variant].variantName}</a>
+													</h4>
+													<div class="info-product-price my-2">
+														<span class="item_price">₹${variants[variant].discountPrice}</span>
+														
+														<del>₹${element.discount!=null ? variants[variant].price : ''}</del>
+														
+													</div>
+													<div class="snipcart-details top_brand_home_details item_add single-item hvr-outline-out">
+														<form action="#" method="post">
+															<fieldset>
+																<input type="hidden" name="cancel_return" value=" " />
+																<input type="submit" name="submit" value="Add to cart" class="button btn" />
+															</fieldset>
+														</form>
+													</div>
+
+												</div>
+											</div>
+										</div>`;
+			            			
+			            		}
+
+			            	}
+			            });
+			            $(".product-sec1 .row").html(productHtml)
 			        }
 			    });
 			}
