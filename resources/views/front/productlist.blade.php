@@ -23,7 +23,7 @@
 				<span>M</span>obiles
 				<span>&</span>
 				<span>C</span>omputers</h3>
-			<!-- //tittle heading -->
+			<!-- //title heading -->
 			<div class="row">
 				<!-- product left -->
 				<div class="agileinfo-ads-display col-lg-9">
@@ -32,8 +32,8 @@
 						<div class="product-sec1 px-sm-4 px-3 py-sm-5  py-3 mb-4">
 							<div class="row">
 								@foreach($products as $product)
-								@if(count($product->productVariants) > 0)
-								@foreach($product->productVariants as $variant)
+								@if(count($product->variantList) > 0)
+								@foreach($product->variantList as $variant)
 								<div class="col-md-4 product-men">
 									<div class="men-pro-item simpleCart_shelfItem">
 										<div class="men-thumb-item text-center">
@@ -119,6 +119,9 @@
 								@endif
 								@endforeach
 							</div>
+						</div>
+						<div class="pagination-wrapper">
+							{{$products->render()}}
 						</div>
 						<!-- //first section -->
 					</div>
@@ -355,7 +358,7 @@
 			        success:function(result){
 			            console.log(result)
 			            let productHtml='';
-			            result.forEach( function(element, index) {
+			            result.data.forEach( function(element, index) {
 			            	if (element.hasOwnProperty('variants')) {
 			            		let variants=element.variants;
 			            		for (variant in variants) {
@@ -396,6 +399,14 @@
 
 			            	}
 			            });
+			            let paginationHtml='<nav><ul class="pagination">';
+			            result.links.forEach( function(element, index) {
+			            	paginationHtml+=`<li class="page-item ${element.active==false && element.url==null ? 'disabled' : (element.active==true ? 'active' : '')} ">
+			            	${(element.active==true && element.url!=null)||(element.active==false && element.url==null) ? `<span class="page-link">${element.label}</span>` : `<a href="${element.url}" class="page-link">${element.label}</a>`}
+			            	</li>`;
+			            });
+			            paginationHtml+='</ul></nav>';
+			            $(".pagination-wrapper").html(paginationHtml)
 			            $(".product-sec1 .row").html(productHtml)
 			        }
 			    });

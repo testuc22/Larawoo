@@ -21,14 +21,26 @@
                         <li class="text-center border-right text-white">
                             <i class="fas fa-phone mr-2"></i> 001 234 5678
                         </li>
+                        @if(Auth::check())
+                        <li class="text-center border-right text-white">
+                            <a href="{{route('userlogout')}}" onclick="event.preventDefault();
+                             document.getElementById('logout-form').submit();" class="text-white">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Log Out </a>
+                        </li>
+                        <form id="logout-form" action="{{ route('userlogout') }}" method="POST" style="display: none;">
+                            @csrf
+                        </form>
+                        @else
                         <li class="text-center border-right text-white">
                             <a href="#" data-toggle="modal" data-target="#exampleModal" class="text-white">
                                 <i class="fas fa-sign-in-alt mr-2"></i> Log In </a>
                         </li>
+                        
                         <li class="text-center text-white">
                             <a href="#" data-toggle="modal" data-target="#exampleModal2" class="text-white">
                                 <i class="fas fa-sign-out-alt mr-2"></i>Register </a>
                         </li>
+                        @endif
                     </ul>
                     <!-- //header lists -->
                 </div>
@@ -51,18 +63,23 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <form action="#" method="post">
+                <div class="modal-body login-modal">
+                    <form action="{{ route('userlogin') }}" method="post">
+                        {{ csrf_field() }}
                         <div class="form-group">
-                            <label class="col-form-label">Username</label>
-                            <input type="text" class="form-control" placeholder=" " name="Name" required="">
+                            <label class="col-form-label">Email</label>
+                            <input type="email" class="form-control" placeholder=" " name="email" required="">
+                            <span class="invalid-feedback email" role="alert">
+                            </span>
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">Password</label>
-                            <input type="password" class="form-control" placeholder=" " name="Password" required="">
+                            <input type="password" class="form-control" placeholder=" " name="password" required="">
+                            <span class="invalid-feedback password" role="alert">
+                            </span>
                         </div>
                         <div class="right-w3l">
-                            <input type="submit" class="form-control" value="Log in">
+                            <input type="button" class="form-control btn-warning login-user" value="Log in">
                         </div>
                         <div class="sub-w3l">
                             <div class="custom-control custom-checkbox mr-sm-2">
@@ -89,26 +106,39 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body register-modal">
                     <form action="#" method="post">
+                        @csrf
                         <div class="form-group">
-                            <label class="col-form-label">Your Name</label>
-                            <input type="text" class="form-control" placeholder=" " name="Name" required="">
+                            <label class="col-form-label">First Name</label>
+                            <input type="text" class="form-control" placeholder=" " name="firstname" required="">
+                            <span class="invalid-feedback firstname" role="alert">
+                            </span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Last Name</label>
+                            <input type="text" class="form-control" placeholder=" " name="lastname" required="">
+                            <span class="invalid-feedback lastname" role="alert">
+                            </span>
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">Email</label>
-                            <input type="email" class="form-control" placeholder=" " name="Email" required="">
+                            <input type="email" class="form-control" placeholder=" " name="email" required="">
+                            <span class="invalid-feedback email" role="alert">
+                            </span>
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">Password</label>
-                            <input type="password" class="form-control" placeholder=" " name="Password" id="password1" required="">
+                            <input type="password" class="form-control" placeholder=" " name="password" id="password1" required="">
+                            <span class="invalid-feedback password" role="alert">
+                            </span>
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">Confirm Password</label>
-                            <input type="password" class="form-control" placeholder=" " name="Confirm Password" id="password2" required="">
+                            <input type="password" class="form-control" placeholder=" " name="password_confirmation" id="password2" required="">
                         </div>
                         <div class="right-w3l">
-                            <input type="submit" class="form-control" value="Register">
+                            <input type="button" class="form-control btn-primary register-user" value="Register">
                         </div>
                         <div class="sub-w3l">
                             <div class="custom-control custom-checkbox mr-sm-2">

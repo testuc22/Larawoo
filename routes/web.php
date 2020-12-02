@@ -91,4 +91,7 @@ Route::namespace('Front')->group(function(){
 	Route::name('home')->get('/', [App\Http\Controllers\Front\HomeController::class,'getHomePage']);
 	Route::name('products')->get('products/{slug}', [App\Http\Controllers\Front\ProductController::class,'getProductList']);
 	Route::name('filter-products')->post('filter-products', [App\Http\Controllers\Front\ProductController::class,'filterProductList']);
+	Route::name('register-user')->post('register-user', [App\Http\Controllers\Front\UserController::class,'registerUser']);
+	Route::name('userlogin')->post('userlogin', [App\Http\Controllers\Front\UserController::class,'userLogin']);
+	Route::name('userlogout')->post('userlogout', [App\Http\Controllers\Front\UserController::class,'userLogOut']);
 });

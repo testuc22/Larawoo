@@ -6,6 +6,7 @@
 <script src="{{asset('front/js/move-top.js')}}"></script>
 <script src="{{asset('front/js/easing.js')}}"></script>
 <script src="{{asset('front/js/bootstrap.js')}}"></script>
+<script src="{{asset('front/js/custom.js')}}"></script>
 <script>
   $(function () {
     $(".dropdown").hover(

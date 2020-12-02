@@ -399,7 +399,7 @@ $(document).on('click', '.generate_combinations', function(event) {
                                 </div>
                                 <div id="collapseOne_${element.id}" class="collapse " data-parent="#accordion">
                                   <div class="card-body">
-                                    <form method="post">
+                                    <form method="post" class="variant_form">
                                     <input type="hidden" name="variant" value="${element.id}" class="variant-id-class">
                                         <div class="form-group">
                                             <label>Quantity</label>

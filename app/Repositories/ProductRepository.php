@@ -281,15 +281,40 @@ class ProductRepository
 	 	$category=Category::where('slug','=',$slug)->first('id')->toArray();
 	 	$catList=array();
 	 	$attributeIds=array();
+	 	$brands=isset($_GET['brands']) && $_GET['brands']!="" ? explode(",", $_GET['brands']) : null;
+	 	$attributes=isset($_GET['attributes']) && $_GET['attributes']!="" ? explode(",", $_GET['attributes']) : null;
+	 	$price=isset($_GET['price']) && $_GET['price']!='' ? explode('-',$_GET['price']) : null;
+	 	$discount=isset($_GET['discount']) && $_GET['discount']!="" ? explode(",", $_GET['discount']) : null;
 	 	$this->categoryRepository->getChildByParentId($category['id'],$catList[$category['id']]['childs']);
 	 	$category=array_merge($category,array_column($catList[$category['id']]['childs'],'id'));
 	 	$productIds=ProductCategory::whereIn('category_id',$category)->get('product_id');
-	 	$products=Product::whereIn('id',$productIds)->paginate(1);//findMany($productIds);
-	 	$products->map(function($product) use($attributeIds){
+	 	$products=Product::when($brands,function($query,$brands){
+	    	return $query->whereHas('productBrand',function($query) use ($brands){
+	    		$query->whereIn('brand_id',$brands);
+	    	});
+	    })->when($price,function($query,$price){
+	    	return $query->whereBetween('price',[...$price]);
+	    })->when($discount,function($query,$discount){
+    	return $query->where('discount','>=',$discount);
+ 		})->whereIn('id',$productIds)
+ 		->paginate(1);//findMany($productIds);
+	 	$products->map(function($product) use($price,$attributes){
 	 	
 	 		if ($product->productVariants()->exists()) {
-	 			$product->productVariants->map(function($variant) use($product,$attributeIds){
-	 				
+	 			$productVariants=$product->productVariants;
+	 			if ($attributes!=null) {
+	 				$productVariants=$productVariants->filter(function($variant) use($attributes){
+		 				$attributeExists=$variant->variantAttributes->filter(function($variantAttribute) use($attributes){
+		 					return in_array($variantAttribute->pivot->attribute_value_id, $attributes) ? true :false;
+		 				});
+		 				return count($attributeExists) > 0 ;
+	 				});
+	 			}
+	 			if ($price!=null) {
+	 				$productVariants=$productVariants->whereBetween('price',[...$price]);	
+	 			}
+	 			$productVariants->map(function($variant) use($product,$price){
+	 				// dump($variant);
 	 				if ($product->discount!=NULL) {
 			 			$discountPercentage=(float)($product->discount/100);
 			 			$discountPrice=$discountPercentage * $variant->price;
@@ -300,17 +325,18 @@ class ProductRepository
 			 		}
 	 				$variant->variantName=getProductVariantsNames($variant->variantAttributes);
 	 				// dd($variant->variantAttributes);
-	 				$variant->variantAttributes->map(function($attribute) use($attributeIds,$product){
+	 				$variant->variantAttributes->map(function($attribute) use($price,$product){
 	 					// dump($attribute->attribute->name);
 		 				if (!in_array($attribute->attribute->id, self::$variantAttributes)) {
-		 					$attributeIds[]=$attribute->attribute->id;
 		 					self::$variantAttributes[]=$attribute->attribute->id;
 		 					// array_push($attributeIds, $attribute->attribute->id);
 		 				}	 					
 	 				});
-
+	 				// dd($variant->variantAttributes[1]->pivot->attribute_value_id);
 	 				$variant->variantImage=getProductVariantImages($variant);
+	 				
 	 			});
+	 			$product->variantList=$productVariants;
 	 		}
 	 		else {
 	 			if ($product->discount!=NULL) {
@@ -325,8 +351,13 @@ class ProductRepository
 	 		}
 
 	 	});
+	 	$products->appends([
+	    	'attributes'=>$attributes!=null ? implode(',', $attributes):'',
+	    	'brands'=>$brands!=null ? implode(",", $brands):'',
+	    	'discount'=>$discount!=null ? implode(",", $discount):'',
+	    	'price'=>$price!=null ? $_GET['price'] :''
+	    ])->links();
 	 	$attributes=Attribute::whereIn('id',self::$variantAttributes)->with('attributeValues')->get();
-
 	 	return [
 	 		'attributes'=>$attributes,
 	 		'products'=>$products,
@@ -337,6 +368,7 @@ class ProductRepository
 	public function filterProductList($request)
 	{
 	    $categories=$request->categories;
+	    $categorySlug=Category::find($categories['id']);
 	    $filterBy=$request->filterValues;
 	    $productIds=ProductCategory::whereIn('category_id',$categories)->get('product_id');
 	    $brands=isset($filterBy['brands']) && count($filterBy['brands']) > 0 ? $filterBy['brands'] : null;
@@ -344,6 +376,7 @@ class ProductRepository
 	    $price=$filterBy['price']!='false' ? explode('-',$filterBy['price']) : null;
 	    $discount=isset($filterBy['discount']) && count($filterBy['discount']) > 0 ? end($filterBy['discount']) : null;
 	    DB::enableQueryLog();
+
 	    $products=Product::when($brands,function($query,$brands){
 	    	return $query->whereHas('productBrand',function($query) use ($brands){
 	    		$query->whereIn('brand_id',$brands);
@@ -352,21 +385,15 @@ class ProductRepository
 	    	return $query->whereBetween('price',[...$price]);
 	    })->when($discount,function($query,$discount){
 	    	return $query->where('discount','>=',$discount);
-	    })
-	    /*->when($attributes,function($query,$attributes){
-	    	return $query->whereHas('productVariants',function($query) use ($attributes){
-	    		return $query->with(['variantAttributes'=>function($query2) use ($attributes){
-	    			return $query2->whereIn('attribute_value_id',$attributes);
-	    		}]);
-	    	});
-	    })*/
-	    ->whereIn('id',$productIds)->get();
-	    $pIds=$products->pluck('id')->toArray();
+	    })->whereIn('id',$productIds)->paginate(1);
+
+	    $pIds=$products->getCollection()->pluck('id')->toArray();
 	    $productsWithAttributes=ProductAttribute::when($attributes,function($query,$attributes){
 		    return $query->whereHas('variantAttributes',function($query) use ($attributes){
 		    	return $query->whereIn('attribute_value_id',$attributes);
 		    });	    	
 	    })->whereIn('product_id',$pIds)->get();
+
 	    $products->map(function($product) use ($productsWithAttributes,$discount,$price){
 	    	if ($product->productVariants()->exists()) {
 	    		$product->variants=$productsWithAttributes->filter(function($productAttribute) use ($product,$discount,$price){
@@ -400,6 +427,13 @@ class ProductRepository
 	 			$product->productImage=asset('/product-images/'.$product->productImages->first('image'));
 	 		}
 	    });
+	    $products->withPath($categorySlug->slug);
+	    $products->appends([
+	    	'attributes'=>$attributes!=null ? implode(',', $attributes):'',
+	    	'brands'=>$brands!=null ? implode(",", $brands):'',
+	    	'discount'=>$discount!=null ? implode(",", $discount):'',
+	    	'price'=>$price!=null ? $filterBy['price'] :''
+	    ])->links();
 	    // dd(DB::getQueryLog());
 	    // $result=$products->merge($productsWithAttributes);
 	    return $products;
