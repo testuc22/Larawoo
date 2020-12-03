@@ -12,7 +12,8 @@ use App\Models\{
 	Tag,
 	Category,Attribute,
 	ProductAttribute,
-	ProductAttributeCombination
+	ProductAttributeCombination,
+	Cart
 };
 use App\Repositories\CategoryRepository;
 use Str;
@@ -351,13 +352,16 @@ class ProductRepository
 	 		}
 
 	 	});
+
 	 	$products->appends([
 	    	'attributes'=>$attributes!=null ? implode(',', $attributes):'',
 	    	'brands'=>$brands!=null ? implode(",", $brands):'',
 	    	'discount'=>$discount!=null ? implode(",", $discount):'',
 	    	'price'=>$price!=null ? $_GET['price'] :''
 	    ])->links();
+
 	 	$attributes=Attribute::whereIn('id',self::$variantAttributes)->with('attributeValues')->get();
+
 	 	return [
 	 		'attributes'=>$attributes,
 	 		'products'=>$products,
@@ -386,7 +390,7 @@ class ProductRepository
 	    })->when($discount,function($query,$discount){
 	    	return $query->where('discount','>=',$discount);
 	    })->whereIn('id',$productIds)->paginate(1);
-
+	    // return(DB::getQueryLog());
 	    $pIds=$products->getCollection()->pluck('id')->toArray();
 	    $productsWithAttributes=ProductAttribute::when($attributes,function($query,$attributes){
 		    return $query->whereHas('variantAttributes',function($query) use ($attributes){
@@ -428,14 +432,47 @@ class ProductRepository
 	 		}
 	    });
 	    $products->withPath($categorySlug->slug);
+
 	    $products->appends([
 	    	'attributes'=>$attributes!=null ? implode(',', $attributes):'',
 	    	'brands'=>$brands!=null ? implode(",", $brands):'',
 	    	'discount'=>$discount!=null ? implode(",", $discount):'',
 	    	'price'=>$price!=null ? $filterBy['price'] :''
 	    ])->links();
-	    // dd(DB::getQueryLog());
+	    // return(DB::getQueryLog());
 	    // $result=$products->merge($productsWithAttributes);
 	    return $products;
+	}
+
+	public function getSingleProduct($id,$variant)
+	{
+	    $product=Product::when($variant,function($query,$variant){
+	    	return $query->with(['productVariants'=>function($query) use ($variant){
+	    		return $query->with('productVariantImages')->where('id','=',$variant);
+	    	}]);
+	    })->with('productImages')
+	  	->where('id','=',$id)->first();
+
+	    $productId=$product->id;
+	    
+	    $productVariants=ProductAttribute::when($variant,function($query,$variant) use ($id){
+	    	return $query->where('product_id','=',$id);
+	    })->get();
+	    	    
+	    return [
+	    	'product'=>$product,
+	    	'productVariants'=>count($productVariants) > 0 ? $productVariants :[]
+	    ];
+	}
+
+	public function getProductVariant($request,$id)
+	{
+	    $productVariant=ProductAttribute::with('productVariantImages')->find($request->productVariant);
+	    return response()->json($productVariant,200);
+	}
+
+	public function addProductToCart($request)
+	{
+	    
 	}
 }

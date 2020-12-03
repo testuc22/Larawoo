@@ -40,13 +40,13 @@
 											<img src="{{asset('/product-images/'.$variant->variantImage[0])}}" alt="" height="150">
 											<div class="men-cart-pro">
 												<div class="inner-men-cart-pro">
-													<a href="single.html" class="link-product-add-cart">Quick View</a>
+													<a href="{{route('single-product',[$product->id,$variant->id])}}" class="link-product-add-cart">Quick View</a>
 												</div>
 											</div>
 										</div>
 										<div class="item-info-product text-center border-top mt-4">
 											<h4 class="pt-1">
-												<a href="single.html">{{$product->title}}{{$variant->variantName}}</a>
+												<a href="{{route('single-product',[$product->id,$variant->id])}}">{{$product->title}}{{$variant->variantName}}</a>
 											</h4>
 											<div class="info-product-price my-2">
 												<span class="item_price">₹{{$variant->discountPrice}}</span>
@@ -82,13 +82,13 @@
 											<img src="{{asset('/product-images/'.$product->productImage->image)}}" alt="" height="150">
 											<div class="men-cart-pro">
 												<div class="inner-men-cart-pro">
-													<a href="single.html" class="link-product-add-cart">Quick View</a>
+													<a href="{{route('single-product',$product->id)}}" class="link-product-add-cart">Quick View</a>
 												</div>
 											</div>
 										</div>
 										<div class="item-info-product text-center border-top mt-4">
 											<h4 class="pt-1">
-												<a href="single.html">{{$product->title}}</a>
+												<a href="{{route('single-product',$product->id)}}">{{$product->title}}</a>
 											</h4>
 											<div class="info-product-price my-2">
 												<span class="item_price">₹{{$product->discountPrice}}</span>

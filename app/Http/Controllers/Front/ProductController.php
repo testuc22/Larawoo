@@ -17,12 +17,38 @@ class ProductController extends Controller
     {
     	$result=$this->productRepository->getProductList($slug);
     	// return $result;
-        return view('front/productlist')->with(['products'=>$result['products'],'attributes'=>$result['attributes'],'categories'=>$result['categories']]);
+        return view('front/productlist')->with([
+        	'products'=>$result['products'],
+        	'attributes'=>$result['attributes'],
+        	'categories'=>$result['categories']
+        ]);
     }
 
     public function filterProductList(Request $request)
     {
         $result=$this->productRepository->filterProductList($request);
+        return $result;
+    }
+
+    public function getSingleProductPage($id,$variant=null)
+    {
+        $result=$this->productRepository->getSingleProduct($id,$variant);
+        // return $result;
+        return view('front/singleproduct')->with([
+        	'product'=>$result['product'],
+        	'productVariants'=>$result['productVariants']
+        ]);
+    }
+
+    public function getProductVariant(Request $request,$id)
+    {
+        $result=$this->productRepository->getProductVariant($request,$id);
+        return $result;
+    }
+
+    public function addProductToCart(Request $request)
+    {
+        $result=$this->productRepository->addProductToCart($request);
         return $result;
     }
 }

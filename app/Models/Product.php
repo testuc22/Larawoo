@@ -11,6 +11,8 @@ class Product extends Model
 
     protected $fillable=['title','slug','metaTitle','sku','price','quantity','discount','description','content','publishedAt','startsAt','endsAt','admin_id'];
 
+    protected $appends=['discountedPrice'];
+
     public function productCategory()
     {
         return $this->hasOne(ProductCategory::class);
@@ -34,5 +36,19 @@ class Product extends Model
     public function productVariants()
     {
         return $this->hasMany(ProductAttribute::class);
+    }
+
+    public function getDiscountedPriceAttribute()
+    {
+        // $discountObj=Product::where('id','=',$this->product_id)->first('discount');
+        $discount=$this->discount;
+        if ($discount!=null||$discount>0) {
+            $discountPercentage=(float)($discount/100);
+            $discountPrice=$discountPercentage * $this->price;
+            return (float)($this->price - $discountPrice); 
+        }
+        else {
+            return $this->price;
+        }
     }
 }

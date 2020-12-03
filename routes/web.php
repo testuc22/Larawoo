@@ -91,6 +91,9 @@ Route::namespace('Front')->group(function(){
 	Route::name('home')->get('/', [App\Http\Controllers\Front\HomeController::class,'getHomePage']);
 	Route::name('products')->get('products/{slug}', [App\Http\Controllers\Front\ProductController::class,'getProductList']);
 	Route::name('filter-products')->post('filter-products', [App\Http\Controllers\Front\ProductController::class,'filterProductList']);
+	Route::name('single-product')->get('single-product/{id}/{variant?}', [App\Http\Controllers\Front\ProductController::class,'getSingleProductPage']);
+	Route::name('get-product-variant')->post('get-product-variant/{id}', [App\Http\Controllers\Front\ProductController::class,'getProductVariant']);
+	Route::name('add-to-cart')->post('add-to-cart', [App\Http\Controllers\Front\ProductController::class,'addProductToCart']);
 	Route::name('register-user')->post('register-user', [App\Http\Controllers\Front\UserController::class,'registerUser']);
 	Route::name('userlogin')->post('userlogin', [App\Http\Controllers\Front\UserController::class,'userLogin']);
 	Route::name('userlogout')->post('userlogout', [App\Http\Controllers\Front\UserController::class,'userLogOut']);
