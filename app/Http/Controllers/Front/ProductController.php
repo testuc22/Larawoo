@@ -48,7 +48,26 @@ class ProductController extends Controller
 
     public function addProductToCart(Request $request)
     {
+    	// return $request;
         $result=$this->productRepository->addProductToCart($request);
+        return $result;
+    }
+
+    public function getUserCartPage()
+    {
+        $userCart=$this->productRepository->getUserCartPage();
+        return view('front/cart')->with(['userCart'=>$userCart]);
+    }
+
+    public function updateUserCart(Request $request)
+    {
+        $result=$this->productRepository->updateUserCart($request);
+        return $result;
+    }
+
+    public function removeCartItem(Request $request)
+    {
+        $result=$this->productRepository->removeCartItem($request);
         return $result;
     }
 }

@@ -94,6 +94,10 @@ Route::namespace('Front')->group(function(){
 	Route::name('single-product')->get('single-product/{id}/{variant?}', [App\Http\Controllers\Front\ProductController::class,'getSingleProductPage']);
 	Route::name('get-product-variant')->post('get-product-variant/{id}', [App\Http\Controllers\Front\ProductController::class,'getProductVariant']);
 	Route::name('add-to-cart')->post('add-to-cart', [App\Http\Controllers\Front\ProductController::class,'addProductToCart']);
+	Route::name('user-cart')->get('user-cart', [App\Http\Controllers\Front\ProductController::class,'getUserCartPage']);
+	Route::name('update-cart')->put('update-cart', [App\Http\Controllers\Front\ProductController::class,'updateUserCart']);
+	Route::name('remove-cart-item')->delete('remove-cart-item', [App\Http\Controllers\Front\ProductController::class,'removeCartItem']);
+	/*--------User Pages--------*/
 	Route::name('register-user')->post('register-user', [App\Http\Controllers\Front\UserController::class,'registerUser']);
 	Route::name('userlogin')->post('userlogin', [App\Http\Controllers\Front\UserController::class,'userLogin']);
 	Route::name('userlogout')->post('userlogout', [App\Http\Controllers\Front\UserController::class,'userLogOut']);

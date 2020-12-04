@@ -13,10 +13,10 @@ use App\Models\{
 	Category,Attribute,
 	ProductAttribute,
 	ProductAttributeCombination,
-	Cart
+	Cart,CartItem
 };
 use App\Repositories\CategoryRepository;
-use Str;
+use Str,Session;
 use Auth,File,DB;
 class ProductRepository
 {
@@ -473,6 +473,99 @@ class ProductRepository
 
 	public function addProductToCart($request)
 	{
-	    
+	    $user=Auth::user();
+	    if ($user->userCart()->exists()) {
+	    	$userCart=$user->userCart;
+	    	$variant=$request->has('productVariant') ? $request->productVariant : null;
+	    	$product=$request->product;
+	    	$cartItem=CartItem::when($variant,function($query,$variant) use ($product){
+	    		return $query->where('product_attribute_id','=',$variant);
+	    	})->where('cart_id','=',$userCart->id)->first();
+	    	if ($cartItem==null && $variant!=null) {
+	    		$this->addNewCartItem($request,$userCart);
+	    	}
+	    	elseif ($cartItem!=null) {
+	    		$originalPrice=(float)($cartItem->price/$cartItem->quantity);
+	    		$price=(float) ($cartItem->price+$originalPrice);
+	    		$cartItem->price=$price;
+			    $cartItem->quantity=(int)($cartItem->quantity+1);
+			    $cartItem->save();
+	    	}
+	    	else {
+	    		$this->addNewCartItem($request,$userCart);
+	    	}
+	    	//return $cartItem;			
+	    }
+	    else {
+	    	$cart=Cart::create([
+	    		'sessionId'=>Session::getId(),
+	    		'status'=>1,
+	    		'firstName'=>$user->firstName,
+	    		'lastName'=>$user->lastName,
+	    		'email'=>$user->email,
+	    		'user_id'=>$user->id
+	    	]);
+	    	$this->addNewCartItem($request,$cart);
+	    }
+	    return redirect()->route('user-cart');
+	}
+
+	public function addNewCartItem($request,$cart)
+	{
+	    $cartItems=$cart->cartItems()->create([
+    		'sku'=>$request->sku,
+    		'price'=>$request->productPrice,
+    		'discount'=>$request->discount,
+    		'quantity'=>1,
+    		'active'=>1,
+    		'content'=>serialize($request->all()),
+    		'cart_id'=>$cart->id,
+    		'product_id'=>$request->product,
+    		'product_attribute_id'=> $request->has('productVariant') ? $request->productVariant : 0
+    	]);
+	}
+
+	public function getUserCartPage()
+	{
+	    $user=Auth::user();
+	    return $user->userCart;
+	}
+
+	public function updateUserCart($request)
+	{
+	    $cartItem=CartItem::find($request->cartItem);
+	    $originalPrice=(float)($cartItem->price/$cartItem->quantity);
+	    if ($request->type=='plus') {
+	    	$price=(float) ($cartItem->price+$originalPrice);
+	    }
+	    else {
+	    	$price=(float) ($cartItem->price-$originalPrice);
+	    }
+	    $cartItem->price=$price;
+	    $cartItem->quantity=$request->value;
+	    $cartItem->save();
+	    $productType=$request->productType;
+	    if ($productType=='Variant') {
+			$updateStock=$request->type;
+			switch ($updateStock) {
+				case 'plus':
+					$quantity=$cartItem->cartItemProductVariant->quantity-1;
+					$cartItem->cartItemProductVariant->update(['quantity'=>$quantity]);
+					break;
+				case 'minus':
+					$quantity=$cartItem->cartItemProductVariant->quantity+1;
+					$cartItem->cartItemProductVariant->update(['quantity'=>$quantity]);
+					break;	
+			}
+		}		
+	    return response()->json(['price'=>$price],200);
+	}
+
+	public function removeCartItem($request)
+	{
+	    $cartItem=CartItem::find($request->cartItem);
+	    $quantity=$cartItem->quantity;
+	    $cartItem->delete();
+	    return response()->json(['message'=>'success'],200);
 	}
 }

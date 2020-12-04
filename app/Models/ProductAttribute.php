@@ -28,6 +28,11 @@ class ProductAttribute extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function productVariantCartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
     public function getDiscountedPriceAttribute()
     {
         $discountObj=Product::where('id','=',$this->product_id)->first('discount');

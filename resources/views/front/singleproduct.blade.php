@@ -110,6 +110,9 @@
 							@endif
 							<fieldset>
 								<input type="hidden" name="product" value="{{$product->id}}" />
+								<input type="hidden" name="productPrice" value="{{count($product->productVariants)>0 ? $product->productVariants[0]->discountedPrice :$product->discountedPrice}}" id="productPrice">
+								<input type="hidden" name="sku" value="{{$product->sku}}">
+								<input type="hidden" name="discount" value="{{$product->discount}}">
 								<input type="hidden" name="product_title" class="product_title" value="{{$product->title}}" />
 								<input type="hidden" name="image_path" class="image_path" value="{{asset('/product-images/')}}" />
 								<input type="submit" name="submit" value="Add to cart" class="button" />
@@ -149,6 +152,7 @@ jQuery(document).ready(function($) {
 				console.log(result)
 				$(".product-title").text(productTitle+' '+variantText)
 				$(".product-price").html(`<span class="item_price">₹${result.discountedPrice}</span><del class="mx-2 font-weight-light">${result.price}</del>`)
+				$("#productPrice").val(result.discountedPrice)
 				let imagesList='';
 				result.product_variant_images.forEach( function(element, index) {
 					imagesList+=`<li data-thumb="${imagePath+'/'+element.image}">
