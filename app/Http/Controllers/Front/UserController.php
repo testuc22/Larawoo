@@ -61,4 +61,28 @@ class UserController extends Controller
         Auth::guard()->logout();
         return redirect()->route('home');
     }
+
+    public function getMyAccountPage()
+    {
+        return view('front/myaccount');
+    }
+
+    public function getMyAddressesPage()
+    {
+        return view('front/myaddresses');
+    }
+
+    public function saveUserAddress(Request $request)
+    {
+        $formArray=[];
+        $form=parse_str($request->form,$formArray);
+        // return $formArray;
+        $validator=Validator::make($formArray,[
+            'line1'=>'required|string',
+            'line2'=>'required'
+        ]);
+        if($validator->fails()) {
+            return response()->json($validator->errors()->toArray(),422);
+        }
+    }
 }

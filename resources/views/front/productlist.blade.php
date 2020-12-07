@@ -138,7 +138,7 @@
 							<ul>
 								@foreach($attribute->attributeValues as $attributeValue)
 								<li>
-									<input type="checkbox" class="checked product-attribute" data-attributevalue="{{$attributeValue->id}}">
+									<input type="checkbox" class="checked product-attribute" data-attributevalue="{{$attribute->name.'_'.$attributeValue->id}}">
 									<span class="span">{{$attributeValue->value}}</span>
 								</li>
 								@endforeach

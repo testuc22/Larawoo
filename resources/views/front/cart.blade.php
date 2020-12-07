@@ -41,10 +41,15 @@
 						</tr>
 					</thead>
 					<tbody>
+						@php
+						$price=0;
+						@endphp
 						@if($userCart->cartItems()->exists())
 						@foreach($userCart->cartItems as $cartItem)
 						{{-- {{dump($cartItem->cartItemProduct->title)}} --}}
-
+						@php
+						$price=$cartItem->price+$price;
+						@endphp
 						<tr class="rem1">
 							<td class="invert">{{$loop->iteration}}</td>
 							<td class="invert-image">
@@ -87,7 +92,7 @@
 				</table>
 			</div>
 		</div>
-		<div class="checkout-left">
+		{{-- <div class="checkout-left">
 			<div class="address_form_agile mt-sm-5 mt-4">
 				<h4 class="mb-sm-4 mb-3">Add a new Details</h4>
 				<form action="payment.html" method="post" class="creditly-card-form agileinfo_form">
@@ -132,6 +137,16 @@
 					</a>
 				</div>
 			</div>
+		</div> --}}
+		<div class="row">
+			<div class="col-md-8"></div>
+			<div class="col-md-4 mt-3">
+				<h3>Total</h3>
+				<div class="cart-item-total">
+					<span>₹<span class="totalprice">{{$price}}</span></span>
+				</div>
+				<a href="{{route('checkout')}}" class="btn btn-info">Proceed To Checkout</a>
+			</div>
 		</div>
 	</div>
 </div>
@@ -162,10 +177,11 @@
 		$('.close1').on('click', function (c) {
 			let _parent=$(this).parents('tr')
 			let cartItem=$(this).data('cartitem');
+			let productType=$(this).data('producttype');
 			$.ajax({
 				url: '{{route('remove-cart-item')}}',
 				type: 'DELETE',
-				data: {cartItem:cartItem,'_token':'{{csrf_token()}}'},
+				data: {cartItem:cartItem,'_token':'{{csrf_token()}}',productType:productType},
 				success:function(result){
 					console.log(result)
 					_parent.fadeOut('slow', function (c) {
@@ -186,6 +202,16 @@
 				success:function(result){
 					console.log(result)
 					_this.parents('.plusminuswrap').siblings('.item-price').text('₹'+result.price)
+					let totalPrice=parseFloat($(".cart-item-total").find('.totalprice').text())
+					switch (type) {
+						case 'plus':
+							totalPrice=totalPrice+result.originalPrice				
+							break;
+						case 'minus':
+							totalPrice=totalPrice-result.originalPrice	
+							break;
+					}
+					$(".cart-item-total").find('.totalprice').text(totalPrice)
 				}
 			})
 			

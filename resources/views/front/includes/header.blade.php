@@ -27,6 +27,9 @@
                              document.getElementById('logout-form').submit();" class="text-white">
                                 <i class="fas fa-sign-out-alt mr-2"></i> Log Out </a>
                         </li>
+                        <li class="text-center border-right text-white">
+                            <a href="{{route('my-account')}}" class="text-white">My Account</a>
+                        </li>
                         <form id="logout-form" action="{{ route('userlogout') }}" method="POST" style="display: none;">
                             @csrf
                         </form>

@@ -97,8 +97,12 @@ Route::namespace('Front')->group(function(){
 	Route::name('user-cart')->get('user-cart', [App\Http\Controllers\Front\ProductController::class,'getUserCartPage']);
 	Route::name('update-cart')->put('update-cart', [App\Http\Controllers\Front\ProductController::class,'updateUserCart']);
 	Route::name('remove-cart-item')->delete('remove-cart-item', [App\Http\Controllers\Front\ProductController::class,'removeCartItem']);
+	Route::name('checkout')->get('checkout', [App\Http\Controllers\Front\ProductController::class,'getCheckOutPage']);
 	/*--------User Pages--------*/
 	Route::name('register-user')->post('register-user', [App\Http\Controllers\Front\UserController::class,'registerUser']);
 	Route::name('userlogin')->post('userlogin', [App\Http\Controllers\Front\UserController::class,'userLogin']);
 	Route::name('userlogout')->post('userlogout', [App\Http\Controllers\Front\UserController::class,'userLogOut']);
+	Route::name('my-account')->get('my-account', [App\Http\Controllers\Front\UserController::class,'getMyAccountPage']);
+	Route::name('getaddress')->get('getaddress', [App\Http\Controllers\Front\UserController::class,'getMyAddressesPage']);
+	Route::name('save-address')->post('save-address', [App\Http\Controllers\Front\UserController::class,'saveUserAddress']);
 });

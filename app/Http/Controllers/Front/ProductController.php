@@ -70,4 +70,9 @@ class ProductController extends Controller
         $result=$this->productRepository->removeCartItem($request);
         return $result;
     }
+
+    public function getCheckOutPage()
+    {
+        
+    }
 }

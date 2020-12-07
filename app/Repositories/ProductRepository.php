@@ -376,11 +376,11 @@ class ProductRepository
 	    $filterBy=$request->filterValues;
 	    $productIds=ProductCategory::whereIn('category_id',$categories)->get('product_id');
 	    $brands=isset($filterBy['brands']) && count($filterBy['brands']) > 0 ? $filterBy['brands'] : null;
-	    $attributes=isset($filterBy['attributes']) && count($filterBy['attributes']) > 0 ? $filterBy['attributes'] : null;
+	    $attributes=isset($filterBy['attributes']) && count($filterBy['attributes']) > 0 ? $filterBy['attributes'] : array();
 	    $price=$filterBy['price']!='false' ? explode('-',$filterBy['price']) : null;
 	    $discount=isset($filterBy['discount']) && count($filterBy['discount']) > 0 ? end($filterBy['discount']) : null;
-	    DB::enableQueryLog();
-
+	    
+	    // dd($attributes);
 	    $products=Product::when($brands,function($query,$brands){
 	    	return $query->whereHas('productBrand',function($query) use ($brands){
 	    		$query->whereIn('brand_id',$brands);
@@ -391,17 +391,38 @@ class ProductRepository
 	    	return $query->where('discount','>=',$discount);
 	    })->whereIn('id',$productIds)->paginate(1);
 	    // return(DB::getQueryLog());
+	    $attrs=array_map(function($attr){
+    		$temp=explode("_", $attr);
+    		return $temp[1];
+    	},$attributes);
+    	$attrsGroup=array_map(function($attr){
+    		$temp=explode("_", $attr);
+    		return $temp[0];
+    	},$attributes);
 	    $pIds=$products->getCollection()->pluck('id')->toArray();
-	    $productsWithAttributes=ProductAttribute::when($attributes,function($query,$attributes){
-		    return $query->whereHas('variantAttributes',function($query) use ($attributes){
-		    	return $query->whereIn('attribute_value_id',$attributes);
+	    DB::enableQueryLog();
+	    $productsWithAttributes=ProductAttribute::when($attrs,function($query,$attrs){
+		    return $query->whereHas('variantAttributes',function($query) use ($attrs){
+
+		    	return $query->whereIn('attribute_value_id',$attrs);
 		    });	    	
 	    })->whereIn('product_id',$pIds)->get();
-
-	    $products->map(function($product) use ($productsWithAttributes,$discount,$price){
+	    // return $attrs;
+	    $products->map(function($product) use ($productsWithAttributes,$discount,$price,$attributes,$attrsGroup){
 	    	if ($product->productVariants()->exists()) {
-	    		$product->variants=$productsWithAttributes->filter(function($productAttribute) use ($product,$discount,$price){
-	    			if ($productAttribute->product_id==$product->id) {
+	    		// dd($productsWithAttributes);
+	    		$product->variants=$productsWithAttributes->filter(function($productAttribute) use ($product,$discount,$price,$attributes,$attrsGroup){
+	    			$combinations=[];
+	    			$combinations=$productAttribute->variantAttributes->whereIn('id',$attributes)->pluck('id')->toArray();
+	    			$combinationsOr=$productAttribute->variantAttributes->pluck('id')->toArray();
+	    			// dd($combinations);attribute
+	    			$sameGroup=$productAttribute->variantAttributes->filter(function($variantAttribute) use ($attrsGroup){
+	    				dump($variantAttribute->attribute->name);
+	    				dump($attrsGroup);
+	    				return $variantAttribute->attribute->name==$attrsGroup;
+	    			});
+
+	    			if ($productAttribute->product_id==$product->id && (array_diff($combinations, $attributes)==array_diff($attributes, $combinations))) {
 	    				$productAttribute->variantName=getProductVariantsNames($productAttribute->variantAttributes);
 	    				if ($discount!=null) {
 	    					$discountPercentage=(float)($product->discount/100);
@@ -411,6 +432,7 @@ class ProductRepository
 	    				else {
 	    					$productAttribute->discountPrice=$productAttribute->price;
 	    				}
+	    				// dump($productAttribute->variantAttributes->pluck('id'));
 	    				$productAttribute->variantImage=asset('/product-images/'.getProductVariantImages($productAttribute)[0]);
 	    				return true;
 	    			}
@@ -523,6 +545,17 @@ class ProductRepository
     		'product_id'=>$request->product,
     		'product_attribute_id'=> $request->has('productVariant') ? $request->productVariant : 0
     	]);
+    	$productType=$request->has('productVariant') ? 'Variant' : 'Simple';
+    	switch ($productType) {
+    		case 'Variant':
+    			$quantity=$cartItem->cartItemProductVariant->quantity-1;
+				$cartItem->cartItemProductVariant->update(['quantity'=>$quantity]);
+    			break;
+    		case 'Simple':
+    			$quantity=$cartItem->cartItemProduct->quantity-1;
+				$cartItem->cartItemProduct->update(['quantity'=>$quantity]);
+    			break;	
+    	}
 	}
 
 	public function getUserCartPage()
@@ -558,13 +591,24 @@ class ProductRepository
 					break;	
 			}
 		}		
-	    return response()->json(['price'=>$price],200);
+	    return response()->json(['price'=>$price,'originalPrice'=>$originalPrice],200);
 	}
 
 	public function removeCartItem($request)
 	{
 	    $cartItem=CartItem::find($request->cartItem);
 	    $quantity=$cartItem->quantity;
+	    $productType=$request->productType;
+	    switch ($productType) {
+	    	case 'Variant':
+	    		$newQuantity=(int)($cartItem->cartItemProductVariant->quantity + $quantity);
+	    		$cartItem->cartItemProductVariant->update(['quantity'=>$newQuantity]);
+	    		break;
+	    	case 'Simple':
+	    		$newQuantity=(int)($cartItem->cartItemProduct->quantity + $quantity);
+	    		$cartItem->cartItemProduct->update(['quantity'=>$newQuantity]);
+	    		break;	
+	    }
 	    $cartItem->delete();
 	    return response()->json(['message'=>'success'],200);
 	}
