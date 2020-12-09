@@ -288,6 +288,16 @@ class ProductRepository
 	 	$discount=isset($_GET['discount']) && $_GET['discount']!="" ? explode(",", $_GET['discount']) : null;
 	 	$this->categoryRepository->getChildByParentId($category['id'],$catList[$category['id']]['childs']);
 	 	$category=array_merge($category,array_column($catList[$category['id']]['childs'],'id'));
+    	$attributeCombinations=[];
+    	$attrs=[];
+	 	if ($attributes!=null) {
+	 		$tempArray=[];
+		    $attrs=array_map(function($attr) use (&$tempArray){
+	    		$temp=explode("_", $attr);
+	    		return $tempArray[$temp[0]][$temp[1]]=(int)$temp[1];
+	    	},$attributes);
+	    	$attributeCombinations=$this->getCombinations(array_values($tempArray));
+	 	}
 	 	$productIds=ProductCategory::whereIn('category_id',$category)->get('product_id');
 	 	$products=Product::when($brands,function($query,$brands){
 	    	return $query->whereHas('productBrand',function($query) use ($brands){
@@ -299,16 +309,22 @@ class ProductRepository
     	return $query->where('discount','>=',$discount);
  		})->whereIn('id',$productIds)
  		->paginate(1);//findMany($productIds);
-	 	$products->map(function($product) use($price,$attributes){
+	 	$products->map(function($product) use($price,$attributes,$attributeCombinations,$attrs){
 	 	
 	 		if ($product->productVariants()->exists()) {
 	 			$productVariants=$product->productVariants;
 	 			if ($attributes!=null) {
-	 				$productVariants=$productVariants->filter(function($variant) use($attributes){
-		 				$attributeExists=$variant->variantAttributes->filter(function($variantAttribute) use($attributes){
+	 				$productVariants=$productVariants->filter(function($variant) use($attributes,$attributeCombinations,$attrs){
+		 				/*$attributeExists=$variant->variantAttributes->filter(function($variantAttribute) use($attributes){
 		 					return in_array($variantAttribute->pivot->attribute_value_id, $attributes) ? true :false;
 		 				});
-		 				return count($attributeExists) > 0 ;
+		 				return count($attributeExists) > 0 ;*/
+		 				$combinations=[];
+	    				$combinations=$variant->variantAttributes->whereIn('id',$attrs)->pluck('id')->toArray();
+	    				// dump($attrs);
+	    				if (in_array($combinations,$attributeCombinations )) {
+    						return true;
+    					}
 	 				});
 	 			}
 	 			if ($price!=null) {
@@ -391,10 +407,15 @@ class ProductRepository
 	    	return $query->where('discount','>=',$discount);
 	    })->whereIn('id',$productIds)->paginate(1);
 	    // return(DB::getQueryLog());
-	    $attrs=array_map(function($attr){
+	    $tempArray=[];
+	    $attrs=array_map(function($attr) use (&$tempArray){
     		$temp=explode("_", $attr);
-    		return $temp[1];
+    		return $tempArray[$temp[0]][$temp[1]]=(int)$temp[1];
     	},$attributes);
+    	$attributeCombinations=[];
+    	$attributeCombinations=array_values($this->getCombinations(array_values($tempArray)));
+    	// return $attributeCombinations;
+    	// dump(array_sum(array_values($attributeCombinations[0])));
     	$attrsGroup=array_map(function($attr){
     		$temp=explode("_", $attr);
     		return $temp[0];
@@ -408,21 +429,28 @@ class ProductRepository
 		    });	    	
 	    })->whereIn('product_id',$pIds)->get();
 	    // return $attrs;
-	    $products->map(function($product) use ($productsWithAttributes,$discount,$price,$attributes,$attrsGroup){
+	    $products->map(function($product) use ($productsWithAttributes,$discount,$price,$attrs,$attrsGroup,$attributeCombinations){
 	    	if ($product->productVariants()->exists()) {
 	    		// dd($productsWithAttributes);
-	    		$product->variants=$productsWithAttributes->filter(function($productAttribute) use ($product,$discount,$price,$attributes,$attrsGroup){
+	    		$product->variants=$productsWithAttributes->filter(function($productAttribute) use ($product,$discount,$price,$attrs,$attrsGroup,$attributeCombinations){
 	    			$combinations=[];
-	    			$combinations=$productAttribute->variantAttributes->whereIn('id',$attributes)->pluck('id')->toArray();
+	    			$combinations=array_values($productAttribute->variantAttributes->whereIn('id',$attrs)->pluck('id')->toArray());
 	    			$combinationsOr=$productAttribute->variantAttributes->pluck('id')->toArray();
-	    			// dd($combinations);attribute
+	    			// dump($combinations);
+	    			// dump($attrs);
+	    			/*if (in_array($combinations,$attributeCombinations )) {
+	    				dump($combinations);
+	    			}*/
+	    			
 	    			$sameGroup=$productAttribute->variantAttributes->filter(function($variantAttribute) use ($attrsGroup){
-	    				dump($variantAttribute->attribute->name);
-	    				dump($attrsGroup);
-	    				return $variantAttribute->attribute->name==$attrsGroup;
-	    			});
-
-	    			if ($productAttribute->product_id==$product->id && (array_diff($combinations, $attributes)==array_diff($attributes, $combinations))) {
+	    				// dump($variantAttribute->attribute->name);
+	    				// dump($attrsGroup);
+	    				if(in_array($variantAttribute->attrName,$attrsGroup)){
+	    					return true;
+	    				}
+	    			})->pluck('attrName')->toArray();
+	    			// dump($sameGroup);&& (array_diff($combinations, $attrs)==array_diff($attrs, $combinations))
+	    			if ($productAttribute->product_id==$product->id) {
 	    				$productAttribute->variantName=getProductVariantsNames($productAttribute->variantAttributes);
 	    				if ($discount!=null) {
 	    					$discountPercentage=(float)($product->discount/100);
@@ -434,7 +462,19 @@ class ProductRepository
 	    				}
 	    				// dump($productAttribute->variantAttributes->pluck('id'));
 	    				$productAttribute->variantImage=asset('/product-images/'.getProductVariantImages($productAttribute)[0]);
-	    				return true;
+	    				if (count($attributeCombinations)>0) {
+	    					$temp=[];
+	    					foreach($attributeCombinations as $attributeCombination){
+	    						array_push($temp, array_sum($attributeCombination));
+	    					}
+	    					// dump($temp);
+	    					if (in_array(array_sum($combinations),$temp)) {
+	    						return true;
+	    					}
+	    				}
+	    				else {
+	    					return true;
+	    				}
 	    			}
 	    		});
 	    		if (is_array($price)) {

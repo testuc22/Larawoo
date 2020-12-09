@@ -10,6 +10,7 @@ class AttributeValue extends Model
     use HasFactory;
 
     protected $fillable=['value','attribute_id'];
+    protected $appends=['attrName'];
 
     public function attribute()
     {
@@ -19,5 +20,10 @@ class AttributeValue extends Model
     public function attributeVariants()
     {
         return $this->belongsToMany(ProductAttribute::class,'product_attribute_combinations');
+    }
+
+    public function getAttrNameAttribute()
+    {
+        return $this->attribute->name;
     }
 }
