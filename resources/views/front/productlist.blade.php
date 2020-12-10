@@ -138,7 +138,7 @@
 							<ul>
 								@foreach($attribute->attributeValues as $attributeValue)
 								<li>
-									<input type="checkbox" class="checked product-attribute" data-attributevalue="{{$attribute->id.'_'.$attributeValue->id}}">
+									<input type="checkbox" class="checked product-attribute" data-attributevalue="{{$attribute->id.'_'.$attributeValue->id}}" {{in_array($attributeValue->id,$attributeValues) ? 'checked' : '' }}>
 									<span class="span">{{$attributeValue->value}}</span>
 								</li>
 								@endforeach
@@ -284,6 +284,7 @@
 				discount:[]
 			},
 			categories:[],
+			page:1,
 			init:function() {
 				this.initVars();
 			},
@@ -303,6 +304,10 @@
 				this.el.productAttribute.on("click",(ev)=>{this.toggleAttribute(ev)})
 				this.el.productPrice.on("click",(ev)=>{this.togglePrice(ev)})
 				this.el.productDiscount.on("click",(ev)=>{this.toggleDiscount(ev)})
+				$(document).on('click', '.paginate-link', (event)=> {
+					this.page=$(event.target).data('page');
+					this.filterProducts()
+				});
 			},
 			toggleBrand:function(event) {
 				let target=$(event.target)
@@ -351,10 +356,11 @@
 			filterProducts:function() {
 				let categories=this.categories;
 				let filterValues=this.filterValues;
+				let page=this.page;
 				$.ajax({
 			        url: '{{route('filter-products')}}',
 			        type: 'POST',
-			        data: {categories:categories,filterValues:filterValues,'_token':'{{csrf_token()}}'},
+			        data: {categories:categories,filterValues:filterValues,'_token':'{{csrf_token()}}',page:page},
 			        success:function(result){
 			            console.log(result)
 			            let productHtml='';
@@ -401,8 +407,9 @@
 			            });
 			            let paginationHtml='<nav><ul class="pagination">';
 			            result.links.forEach( function(element, index) {
+			            	let nextPage=parseInt(result.from)+1
 			            	paginationHtml+=`<li class="page-item ${element.active==false && element.url==null ? 'disabled' : (element.active==true ? 'active' : '')} ">
-			            	${(element.active==true && element.url!=null)||(element.active==false && element.url==null) ? `<span class="page-link">${element.label}</span>` : `<a href="${element.url}" class="page-link">${element.label}</a>`}
+			            	${(element.active==true && element.url!=null)||(element.active==false && element.url==null) ? `<span class="page-link">${element.label}</span>` : `<a href="javascript:;" class="page-link paginate-link" data-page="${element.label=='Next &raquo;' ? nextPage : (element.label=='&laquo; Previous' ? --result.current_page : element.label) }">${element.label}</a>`}
 			            	</li>`;
 			            });
 			            paginationHtml+='</ul></nav>';

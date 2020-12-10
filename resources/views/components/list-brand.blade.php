@@ -8,7 +8,7 @@
 		<ul>
 			@foreach($brands as $brand)
 			<li>
-				<input type="checkbox" class="checked product-brand" data-brand="{{$brand->id}}">
+				<input type="checkbox" class="checked product-brand" data-brand="{{$brand->id}}" {{in_array($brand->id, $selectedBrands) ? 'checked' :'' }}>
 				<span class="span">{{$brand->brandName}}</span>
 			</li>
 			@endforeach

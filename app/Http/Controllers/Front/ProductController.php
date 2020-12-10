@@ -17,10 +17,20 @@ class ProductController extends Controller
     {
     	$result=$this->productRepository->getProductList($slug);
     	// return $result;
+    	$attributeValues=[];
+    	if (isset($_GET['attributes']) && $_GET['attributes']!="") {
+    		$attributes=explode(",", $_GET['attributes']);
+    		$attributeValues=array_map(function($attribute){
+    			$temp=explode("_", $attribute);
+    			return $temp[1];
+    		},$attributes);
+    	}
+    	
         return view('front/productlist')->with([
         	'products'=>$result['products'],
         	'attributes'=>$result['attributes'],
-        	'categories'=>$result['categories']
+        	'categories'=>$result['categories'],
+        	'attributeValues'=>$attributeValues
         ]);
     }
 

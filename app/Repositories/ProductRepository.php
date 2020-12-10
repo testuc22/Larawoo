@@ -498,7 +498,7 @@ class ProductRepository
 	    $products->appends([
 	    	'attributes'=>$attributes!=null ? implode(',', $attributes):'',
 	    	'brands'=>$brands!=null ? implode(",", $brands):'',
-	    	'discount'=>$discount!=null ? implode(",", $discount):'',
+	    	'discount'=>$discount!=null ? $discount:'',
 	    	'price'=>$price!=null ? $filterBy['price'] :''
 	    ])->links();
 	    // return(DB::getQueryLog());

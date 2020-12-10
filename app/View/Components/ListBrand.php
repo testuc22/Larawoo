@@ -12,10 +12,14 @@ class ListBrand extends Component
      * @return void
      */
     public $brands;
+    public $selectedBrands=[];
 
     public function __construct(BrandRepository $brandRepository)
     {
         $this->brands=$brandRepository->getAllBrands();
+        if (isset($_GET['brands']) && $_GET['brands']!="") {
+            $selectedBrands=explode(",", $_GET['brands']);
+        }
     }
 
     /**
