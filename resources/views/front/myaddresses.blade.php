@@ -13,19 +13,39 @@
 				  	</div>
 				  	<div class="card-body">
 				  		<div id="accordion">
-
+				  			@foreach($userAddresses as $userAddress)
 						  <div class="card">
 						    <div class="card-header">
-						      <a class="card-link" data-toggle="collapse" href="#collapseOne">
-						        Collapsible Group Item #1
+						      <a class="card-link" data-toggle="collapse" href="#collapseOne_{{$userAddress->id}}">
+						        {{$userAddress->line1}}
 						      </a>
 						    </div>
-						    <div id="collapseOne" class="collapse show" data-parent="#accordion">
+						    <div id="collapseOne_{{$userAddress->id}}" class="collapse" data-parent="#accordion">
 						      <div class="card-body">
-						        Lorem ipsum..
+						        <table class="table-responsive">
+						        	<tr>
+						        		<th>Line1</th>
+						        		<th>Line2</th>
+						        		<th>City</th>
+						        		<th>State</th>
+						        		<th>Country</th>
+						        		<th>Pincode</th>
+						        		<th>Phone</th>
+						        	</tr>
+						        	<tr>
+						        		<td>{{$userAddress->line1}}</td>
+						        		<td>{{$userAddress->line2}}</td>
+						        		<td>{{$userAddress->city}}</td>
+						        		<td>{{$userAddress->state}}</td>
+						        		<td>{{$userAddress->country}}</td>
+						        		<td>{{$userAddress->pincode}}</td>
+						        		<td>{{$userAddress->phone}}</td>
+						        	</tr>
+						        </table>
 						      </div>
 						    </div>
 						  </div>
+						  @endforeach
 						</div>
 				  	</div>
 				  	<div class="card-footer">Footer</div>
@@ -106,7 +126,16 @@
 				type: 'POST',
 				data: {form:$("#address-form").serialize(),'_token':'{{csrf_token()}}'},
 				success:function(result){
-
+					let user=result.user
+				},
+				error:function(result) {
+					let _error=result.responseJSON;
+					for(var key in _error) {
+						if(_error.hasOwnProperty(key)){
+							$(`.${key}`).html(`<strong>${_error[key][0]}</strong>`)
+							$(`.${key}`).css('display', 'block');
+						}
+					}
 				}
 			})
 			

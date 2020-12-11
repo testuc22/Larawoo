@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| Web Routes HOOOO HAHAHAHAHA HOOOOO HAHAHAHAHA 
 |--------------------------------------------------------------------------
 |
 | Here is where you can register web routes for your application. These
@@ -82,6 +82,10 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	 	Route::name('update-variant-details')->post('update-variant-details', [App\Http\Controllers\Back\ProductController::class,'updateProductVariant']);
 	 	Route::name('update-product-combinations-images')->get('update-product-combinations-images/{id}', [App\Http\Controllers\Back\ProductController::class,'refreshProductVariantImages']);
 
+	 	/*-----Order Pages------*/
+
+	 	Route::name('listorders')->get('listorders', [App\Http\Controllers\Back\OrderController::class,'getAllOrders']);
+
 	});
 });
 
@@ -105,4 +109,5 @@ Route::namespace('Front')->group(function(){
 	Route::name('my-account')->get('my-account', [App\Http\Controllers\Front\UserController::class,'getMyAccountPage']);
 	Route::name('getaddress')->get('getaddress', [App\Http\Controllers\Front\UserController::class,'getMyAddressesPage']);
 	Route::name('save-address')->post('save-address', [App\Http\Controllers\Front\UserController::class,'saveUserAddress']);
+	Route::name('save-order')->post('save-order', [App\Http\Controllers\Front\UserController::class,'createNewOrder']);
 });

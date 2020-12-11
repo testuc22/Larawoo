@@ -177,30 +177,12 @@
 						<div class="left-side border-bottom py-2">
 							<h3 class="agileits-sear-head mb-3">Discount</h3>
 							<ul>
+								@foreach($discountArray as $discountV)
 								<li>
-									<input type="checkbox" class="checked product-discount" data-discount="5">
-									<span class="span">5% or More</span>
+									<input type="checkbox" class="checked product-discount" data-discount="{{$discountV}}" {{in_array($discountV, $discount) ? 'checked' :'' }}>
+									<span class="span">{{$discountV}}% or More</span>
 								</li>
-								<li>
-									<input type="checkbox" class="checked product-discount" data-discount="10">
-									<span class="span">10% or More</span>
-								</li>
-								<li>
-									<input type="checkbox" class="checked product-discount" data-discount="20">
-									<span class="span">20% or More</span>
-								</li>
-								<li>
-									<input type="checkbox" class="checked product-discount" data-discount="30">
-									<span class="span">30% or More</span>
-								</li>
-								<li>
-									<input type="checkbox" class="checked product-discount" data-discount="50">
-									<span class="span">50% or More</span>
-								</li>
-								<li>
-									<input type="checkbox" class="checked product-discount" data-discount="60">
-									<span class="span">60% or More</span>
-								</li>
+								@endforeach
 							</ul>
 						</div>
 						<!-- //discounts -->

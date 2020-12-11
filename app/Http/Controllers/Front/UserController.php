@@ -5,12 +5,20 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserAddress;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Repositories\OrderRepository;
 use Auth;
 class UserController extends Controller
 {
+
+    public function __construct(OrderRepository $orderRepository)
+    {
+        $this->orderRepository=$orderRepository;
+    }
+
     public function registerUser(Request $request)
     {
         $validator=Validator::make($request->all(), [
@@ -69,7 +77,8 @@ class UserController extends Controller
 
     public function getMyAddressesPage()
     {
-        return view('front/myaddresses');
+        $UserAddresses=UserAddress::where('user_id','=',Auth::id())->get();
+        return view('front/myaddresses')->with(['userAddresses'=>$UserAddresses]);
     }
 
     public function saveUserAddress(Request $request)
@@ -84,5 +93,25 @@ class UserController extends Controller
         if($validator->fails()) {
             return response()->json($validator->errors()->toArray(),422);
         }
+        else {
+            $user=UserAddress::create([
+                'line1'=>$formArray['line1'],
+                'line2'=>$formArray['line2'],
+                'city'=>$formArray['city'],
+                'state'=>$formArray['state'],
+                'country'=>$formArray['country'],
+                'pincode'=>$formArray['pincode'],
+                'phone'=>$formArray['phone'],
+                'active'=>0,
+                'user_id'=>Auth::id()
+            ]);
+            return response()->json(['user'=>$user],200);
+        }
+    }
+
+    public function createNewOrder(Request $request)
+    {
+        $order=$this->orderRepository->createNewOrder($request);
+        return view('front/thanku')->with(['order'=>$order]);
     }
 }

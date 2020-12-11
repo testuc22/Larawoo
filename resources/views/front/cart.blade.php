@@ -11,7 +11,7 @@
 					<a href="index.html">Home</a>
 					<i>|</i>
 				</li>
-				<li>Checkout</li>
+				<li>Cart</li>
 			</ul>
 		</div>
 	</div>

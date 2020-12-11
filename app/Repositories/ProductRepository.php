@@ -308,7 +308,7 @@ class ProductRepository
 	    })->when($discount,function($query,$discount){
     	return $query->where('discount','>=',$discount);
  		})->whereIn('id',$productIds)
- 		->paginate(1);//findMany($productIds);
+ 		->paginate(1);//findMany($productIds);100000
 	 	$products->map(function($product) use($price,$attributes,$attributeCombinations,$attrs){
 	 	
 	 		if ($product->productVariants()->exists()) {
@@ -405,7 +405,7 @@ class ProductRepository
 	    	return $query->whereBetween('price',[...$price]);
 	    })->when($discount,function($query,$discount){
 	    	return $query->where('discount','>=',$discount);
-	    })->whereIn('id',$productIds)->paginate(1);
+	    })->whereIn('id',$productIds)->paginate(5);
 	    // return(DB::getQueryLog());
 	    $tempArray=[];
 	    $attrs=array_map(function($attr) use (&$tempArray){
@@ -588,12 +588,12 @@ class ProductRepository
     	$productType=$request->has('productVariant') ? 'Variant' : 'Simple';
     	switch ($productType) {
     		case 'Variant':
-    			$quantity=$cartItem->cartItemProductVariant->quantity-1;
-				$cartItem->cartItemProductVariant->update(['quantity'=>$quantity]);
+    			$quantity=$cartItems->cartItemProductVariant->quantity-1;
+				$cartItems->cartItemProductVariant->update(['quantity'=>$quantity]);
     			break;
     		case 'Simple':
-    			$quantity=$cartItem->cartItemProduct->quantity-1;
-				$cartItem->cartItemProduct->update(['quantity'=>$quantity]);
+    			$quantity=$cartItems->cartItemProduct->quantity-1;
+				$cartItems->cartItemProduct->update(['quantity'=>$quantity]);
     			break;	
     	}
 	}
@@ -602,6 +602,12 @@ class ProductRepository
 	{
 	    $user=Auth::user();
 	    return $user->userCart;
+	}
+
+	public function getUserAddress()
+	{
+	    $user=Auth::user();
+	    return $user->userAddresses->first();
 	}
 
 	public function updateUserCart($request)

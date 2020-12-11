@@ -16,8 +16,9 @@ class ProductController extends Controller
     public function getProductList($slug)
     {
     	$result=$this->productRepository->getProductList($slug);
+    	$discountArray=[5,10,20,30,50,60];
     	// return $result;
-    	$attributeValues=[];
+    	$attributeValues=[];$discount=[];
     	if (isset($_GET['attributes']) && $_GET['attributes']!="") {
     		$attributes=explode(",", $_GET['attributes']);
     		$attributeValues=array_map(function($attribute){
@@ -25,12 +26,17 @@ class ProductController extends Controller
     			return $temp[1];
     		},$attributes);
     	}
+    	if (isset($_GET['discount']) && $_GET['discount']!="") {
+    		$discount=explode(",", $_GET['discount']);
+    	}
     	
         return view('front/productlist')->with([
         	'products'=>$result['products'],
         	'attributes'=>$result['attributes'],
         	'categories'=>$result['categories'],
-        	'attributeValues'=>$attributeValues
+        	'attributeValues'=>$attributeValues,
+        	'discount'=>$discount,
+        	'discountArray'=>$discountArray
         ]);
     }
 
@@ -83,6 +89,8 @@ class ProductController extends Controller
 
     public function getCheckOutPage()
     {
-        
+        $userAddress=$this->productRepository->getUserAddress();
+        $userCart=$this->productRepository->getUserCartPage();
+        return view('front/checkout')->with(['userCart'=>$userCart,'userAddress'=>$userAddress]);
     }
 }

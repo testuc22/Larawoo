@@ -52,6 +52,12 @@
 							<p>Products</p>
 						</a>
 					</li>
+					<li class="nav-item">
+						<a href="{{ route('listorders') }}" class="nav-link">
+							<i class="fab fa-jedi-order nav-icon"></i>
+							<p>Orders</p>
+						</a>
+					</li>
 					
 				</ul>
 			</nav>
