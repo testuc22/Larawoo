@@ -49,23 +49,20 @@
 												<a href="{{route('single-product',[$product->id,$variant->id])}}">{{$product->title}}{{$variant->variantName}}</a>
 											</h4>
 											<div class="info-product-price my-2">
-												<span class="item_price">₹{{$variant->discountPrice}}</span>
+												<span class="item_price">₹{{$variant->discountedPrice}}</span>
 												@if($product->discount!=NULL)
 												<del>₹{{$variant->price}}</del>
 												@endif
 											</div>
 											<div class="snipcart-details top_brand_home_details item_add single-item hvr-outline-out">
-												<form action="#" method="post">
+												<form action="{{route('add-to-cart')}}" method="post">
+													@csrf
 													<fieldset>
-														<input type="hidden" name="cmd" value="_cart" />
-														<input type="hidden" name="add" value="1" />
-														<input type="hidden" name="business" value=" " />
-														<input type="hidden" name="item_name" value="Samsung Galaxy J7" />
-														<input type="hidden" name="amount" value="200.00" />
-														<input type="hidden" name="discount_amount" value="1.00" />
-														<input type="hidden" name="currency_code" value="USD" />
-														<input type="hidden" name="return" value=" " />
-														<input type="hidden" name="cancel_return" value=" " />
+														<input type="hidden" name="productVariant" value="{{$variant->id}}" />
+														<input type="hidden" name="product" value="{{$product->id}}" />
+														<input type="hidden" name="productPrice" value="{{$variant->discountedPrice}}" />
+														<input type="hidden" name="sku" value="{{$product->sku}}" />
+														<input type="hidden" name="discount" value="{{$product->discount}}" />
 														<input type="submit" name="submit" value="Add to cart" class="button btn" />
 													</fieldset>
 												</form>
@@ -91,7 +88,7 @@
 												<a href="{{route('single-product',$product->id)}}">{{$product->title}}</a>
 											</h4>
 											<div class="info-product-price my-2">
-												<span class="item_price">₹{{$product->discountPrice}}</span>
+												<span class="item_price">₹{{$product->discountedPrice}}</span>
 												@if($product->discount!=NULL)
 												<del>₹{{$product->price}}</del>
 												@endif
@@ -356,16 +353,16 @@
 													<img src="${variants[variant].variantImage}" alt="" height="150">
 													<div class="men-cart-pro">
 														<div class="inner-men-cart-pro">
-															<a href="single.html" class="link-product-add-cart">Quick View</a>
+															<a href="${variants[variant].singleRoute}" class="link-product-add-cart">Quick View</a>
 														</div>
 													</div>
 												</div>
 												<div class="item-info-product text-center border-top mt-4">
 													<h4 class="pt-1">
-														<a href="single.html">${element.title}${variants[variant].variantName}</a>
+														<a href="${variants[variant].singleRoute}">${element.title}${variants[variant].variantName}</a>
 													</h4>
 													<div class="info-product-price my-2">
-														<span class="item_price">₹${variants[variant].discountPrice}</span>
+														<span class="item_price">₹${variants[variant].discountedPrice}</span>
 														
 														<del>₹${element.discount!=null ? variants[variant].price : ''}</del>
 														

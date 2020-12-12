@@ -85,6 +85,8 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	 	/*-----Order Pages------*/
 
 	 	Route::name('listorders')->get('listorders', [App\Http\Controllers\Back\OrderController::class,'getAllOrders']);
+	 	Route::name('order-details')->get('order-details/{id}', [App\Http\Controllers\Back\OrderController::class,'getOrderDetails']);
+	 	Route::name('change-order-status')->put('change-order-status/{id}', [App\Http\Controllers\Back\OrderController::class,'changeOrderStatus']);
 
 	});
 });

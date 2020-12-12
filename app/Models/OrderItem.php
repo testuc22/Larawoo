@@ -15,4 +15,14 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    public function productOrderItem()
+    {
+        return $this->belongsTo(Product::class,'product_id');
+    }
+
+    public function productVariantOrderItem()
+    {
+        return $this->belongsTo(ProductAttribute::class,'product_attribute_id');
+    }
 }

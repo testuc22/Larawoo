@@ -315,10 +315,7 @@ class ProductRepository
 	 			$productVariants=$product->productVariants;
 	 			if ($attributes!=null) {
 	 				$productVariants=$productVariants->filter(function($variant) use($attributes,$attributeCombinations,$attrs){
-		 				/*$attributeExists=$variant->variantAttributes->filter(function($variantAttribute) use($attributes){
-		 					return in_array($variantAttribute->pivot->attribute_value_id, $attributes) ? true :false;
-		 				});
-		 				return count($attributeExists) > 0 ;*/
+		 				
 		 				$combinations=[];
 	    				$combinations=$variant->variantAttributes->whereIn('id',$attrs)->pluck('id')->toArray();
 	    				// dump($attrs);
@@ -332,14 +329,7 @@ class ProductRepository
 	 			}
 	 			$productVariants->map(function($variant) use($product,$price){
 	 				// dump($variant);
-	 				if ($product->discount!=NULL) {
-			 			$discountPercentage=(float)($product->discount/100);
-			 			$discountPrice=$discountPercentage * $variant->price;
-			 			$variant->discountPrice=(float)($variant->price - $discountPrice); 
-			 		}
-			 		else {
-		 				$variant->discountPrice=$variant->price;
-			 		}
+	 				
 	 				$variant->variantName=getProductVariantsNames($variant->variantAttributes);
 	 				// dd($variant->variantAttributes);
 	 				$variant->variantAttributes->map(function($attribute) use($price,$product){
@@ -356,14 +346,6 @@ class ProductRepository
 	 			$product->variantList=$productVariants;
 	 		}
 	 		else {
-	 			if ($product->discount!=NULL) {
-		 			$discountPercentage=(float)($product->discount/100);
-		 			$discountPrice=$discountPercentage * $product->price;
-		 			$product->discountPrice=(float)($product->price - $discountPrice); 
-		 		}
-		 		else {
-	 				$product->discountPrice=$product->price;
-		 		}
 	 			$product->productImage=$product->productImages->first();
 	 		}
 
@@ -436,38 +418,16 @@ class ProductRepository
 	    			$combinations=[];
 	    			$combinations=array_values($productAttribute->variantAttributes->whereIn('id',$attrs)->pluck('id')->toArray());
 	    			$combinationsOr=$productAttribute->variantAttributes->pluck('id')->toArray();
-	    			// dump($combinations);
-	    			// dump($attrs);
-	    			/*if (in_array($combinations,$attributeCombinations )) {
-	    				dump($combinations);
-	    			}*/
-	    			
-	    			$sameGroup=$productAttribute->variantAttributes->filter(function($variantAttribute) use ($attrsGroup){
-	    				// dump($variantAttribute->attribute->name);
-	    				// dump($attrsGroup);
-	    				if(in_array($variantAttribute->attrName,$attrsGroup)){
-	    					return true;
-	    				}
-	    			})->pluck('attrName')->toArray();
-	    			// dump($sameGroup);&& (array_diff($combinations, $attrs)==array_diff($attrs, $combinations))
 	    			if ($productAttribute->product_id==$product->id) {
 	    				$productAttribute->variantName=getProductVariantsNames($productAttribute->variantAttributes);
-	    				if ($discount!=null) {
-	    					$discountPercentage=(float)($product->discount/100);
-				 			$discountPrice=$discountPercentage * $productAttribute->price;
-				 			$productAttribute->discountPrice=(float)($productAttribute->price - $discountPrice);
-	    				}
-	    				else {
-	    					$productAttribute->discountPrice=$productAttribute->price;
-	    				}
-	    				// dump($productAttribute->variantAttributes->pluck('id'));
+
 	    				$productAttribute->variantImage=asset('/product-images/'.getProductVariantImages($productAttribute)[0]);
+	    				$productAttribute->singleRoute=route('single-product',[$product->id,$productAttribute->id]);
 	    				if (count($attributeCombinations)>0) {
 	    					$temp=[];
 	    					foreach($attributeCombinations as $attributeCombination){
 	    						array_push($temp, array_sum($attributeCombination));
 	    					}
-	    					// dump($temp);
 	    					if (in_array(array_sum($combinations),$temp)) {
 	    						return true;
 	    					}
@@ -482,15 +442,8 @@ class ProductRepository
 				}
 	    	}
 	    	else {
-	 			if ($discount!=null) {
-		 			$discountPercentage=(float)($product->discount/100);
-		 			$discountPrice=$discountPercentage * $product->price;
-		 			$product->discountPrice=(float)($product->price - $discountPrice); 
-		 		}
-		 		else {
-	 				$product->discountPrice=$product->price;
-		 		}
 	 			$product->productImage=asset('/product-images/'.$product->productImages->first('image'));
+	 			$product->singleRoute=route('single-product',$product->id);
 	 		}
 	    });
 	    $products->withPath($categorySlug->slug);

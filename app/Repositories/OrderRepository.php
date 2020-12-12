@@ -63,4 +63,16 @@ class OrderRepository
 	{
 	    return Order::all();
 	}
+
+	public function getOrderDetails($id)
+	{
+	    return Order::find($id);
+	}
+
+	public function changeOrderStatus($request,$id)
+	{
+	    $order=$this->getOrderDetails($id);
+	    $order->update(['status'=>$request->status]);
+	    return response()->json(['status'=>$order->status],200);
+	}
 }

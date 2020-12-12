@@ -79,7 +79,7 @@
                     </td>
                     <td>{{$order->total}}</td>
                     <td>
-                    	<a href="" class="btn  btn-info" >Details</a>
+                    	<a href="{{route('order-details',$order->id)}}" class="btn  btn-info" >Details</a>
                     </td>
                 </tr>
 
