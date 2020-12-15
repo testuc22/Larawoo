@@ -19,6 +19,8 @@ Route::prefix('admin')->namespace('Back')->group(function(){
 	Route::middleware('admin')->group(function(){
 		Route::name('adminlogout')->get('adminlogout', [App\Http\Controllers\Back\AdminController::class,'doAdminLogout']);
 		Route::name('dashboard')->get('admindashboard', [App\Http\Controllers\Back\AdminController::class,'getAdminHomePage']);
+		Route::name('listusers')->get('listusers', [App\Http\Controllers\Back\AdminController::class,'getListUserPage']);
+		Route::name('login-user-by-admin')->get('login-user-by-admin/{id}', [App\Http\Controllers\Back\AdminController::class,'loginUserByAdmin']);
 
 		/* Category Pages */
 

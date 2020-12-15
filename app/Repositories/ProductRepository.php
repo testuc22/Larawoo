@@ -158,9 +158,9 @@ class ProductRepository
 		    }
 		}
 		$mergeArrays=self::getCombinations(array_values($tempArray));
+		// return $mergeArrays;
 		$product=Product::find($id);
 		$mergeArrays=$this->checkIfVariantExists($product,$mergeArrays);
-		// return $mergeArrays;
 		$attributesLength=count($mergeArrays);
 		if($attributesLength > 0){
 			$data=[];
@@ -216,9 +216,12 @@ class ProductRepository
             return count($list) ? array_map(function ($v) { return array($v); }, $list[0]) : $list;
         }
         $res = array();
+        // dump($list);
         $first = array_pop($list);
         foreach ($first as $attribute) {
             $tab = self::getCombinations($list);
+            // dump($tab);
+            // dump($attribute);
             foreach ($tab as $to_add) {
                 $res[] = is_array($to_add) ? array_merge($to_add, array($attribute)) : array($to_add, $attribute);
             }

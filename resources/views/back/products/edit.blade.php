@@ -343,7 +343,7 @@ if (productTags.length) {
         $("#product_tags").tagsinput('add',{'id':element.id,'tag':element.tag})        
     });
 }
-var proComb=[];
+var proComb=[];var productCombs={};
 $(document).on('change', '.single_attribute', function(event) {
     let attributId=$(this).data('attributeid');
     let attributValue=$(this).data('label');
@@ -352,6 +352,8 @@ $(document).on('change', '.single_attribute', function(event) {
         $("#product_combinations").tagsinput('add',{id:attributId,attribute:attributValue})
         let aIndex=-1;
         proComb.push({[attributGroup]:attributId})
+        // productCombs[attributGroup]={[attributGroup]:attributId};
+
     }
     else {
         $("#product_combinations").tagsinput('remove',{id:attributId,attribute:attributValue})
@@ -360,9 +362,11 @@ $(document).on('change', '.single_attribute', function(event) {
                 proComb.splice(index, 1)
             }
         });
+        // delete productCombs[attributGroup];
         
     }
     console.log(proComb)
+    // console.log(productCombs,"productCombs")
 });
 
 $(document).on('click', '.generate_combinations', function(event) {

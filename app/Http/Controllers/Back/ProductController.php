@@ -93,6 +93,7 @@ class ProductController extends Controller
 
     public function generateProductCombinations(Request $request,$id)
     {
+        // return $request;
         $result=$this->productRepository->generateProductCombinations($request,$id);
         return $result;
     }
