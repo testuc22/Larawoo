@@ -289,8 +289,10 @@ class ProductRepository
 	 	$attributes=isset($_GET['attributes']) && $_GET['attributes']!="" ? explode(",", $_GET['attributes']) : null;
 	 	$price=isset($_GET['price']) && $_GET['price']!='' ? explode('-',$_GET['price']) : null;
 	 	$discount=isset($_GET['discount']) && $_GET['discount']!="" ? explode(",", $_GET['discount']) : null;
+	 	// dd($category);
 	 	$this->categoryRepository->getChildByParentId($category['id'],$catList[$category['id']]['childs']);
-	 	$category=array_merge($category,array_column($catList[$category['id']]['childs'],'id'));
+	 	// dd($catList);
+	 	$category=array_merge($category,$catList[$category['id']]['childs']!=null ? array_column($catList[$category['id']]['childs'],'id') : []);
     	$attributeCombinations=[];
     	$attrs=[];
 	 	if ($attributes!=null) {
